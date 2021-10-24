@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
-import moment, { Duration, duration } from 'moment';
+import moment, { duration } from 'moment';
 import { EventEmitter2 as EventEmitter } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
@@ -21,10 +21,10 @@ export class ResponseService {
   ) {}
 
   public async registerResponse(url: string): Promise<void> {
-    const responseRaw = await this.httpService.fetch(url);
+    const httpResponse = await this.httpService.fetch(url);
 
     const response = plainToClass(ResponseModel, {
-      ...responseRaw,
+      ...httpResponse,
       registeredAt: moment().toISOString()
     });
 
@@ -48,70 +48,61 @@ export class ResponseService {
   public getAvailability(interval: Interval): number {
     const responses = this.responseRepository.getResponsesForInterval(interval);
 
-    let [available, total] = [0, 0];
-
-    for (const response of responses) {
-      if (response.code < 300) {
-        available++;
+    const { percent } = responses.reduce(
+      ({ available, total }, { code }) => ({
+        available: code < 300 ? available + 1 : available,
+        total: total + 1,
+        get percent(): number {
+          return Math.round((this.available / this.total) * 100);
+        }
+      }),
+      {
+        available: 0,
+        total: 0,
+        get percent(): number {
+          return 0;
+        }
       }
-      total++;
-    }
-
-    return Math.round((available / total) * 100);
-  }
-
-  private getAverageResponseTime(interval: Interval): Duration {
-    const responses = this.responseRepository.getResponsesForInterval(interval);
-
-    const sum = responses.reduce(
-      (acc, { time }) => (acc = acc.add(time)),
-      duration(0)
-    );
-    const averageTimeMilliseconds = Math.floor(
-      sum.asMilliseconds() / responses.length
     );
 
-    return duration(averageTimeMilliseconds, 'milliseconds');
-  }
-
-  private getMaxResponseTime(interval: Interval): Duration {
-    const responses = this.responseRepository.getResponsesForInterval(interval);
-
-    return responses.reduce(
-      (max, response) => (max > response.time ? max : response.time),
-      duration(0)
-    );
+    return percent;
   }
 
   public getResponseTimes(interval: Interval): ResponseTimesModel {
-    const average = this.getAverageResponseTime(interval);
-    const max = this.getMaxResponseTime(interval);
+    const responses = this.responseRepository.getResponsesForInterval(interval);
+    const { sum, max } = responses.reduce(
+      ({ max, sum }, { time }) => ({
+        sum: sum.add(time),
+        max: max > time ? max : time
+      }),
+      { max: duration(0), sum: duration(0) }
+    );
+
+    const average = duration(
+      Math.floor(sum.asMilliseconds() / responses.length),
+      'ms'
+    );
 
     return plainToClass(ResponseTimesModel, { average, max });
   }
 
   public getResponseCodesCount(interval: Interval): Map<HttpStatus, number> {
-    const responsesCount = new Map<number, number>();
     const responses = this.responseRepository.getResponsesForInterval(interval);
 
-    responses.forEach(response => {
-      if (!responsesCount.has(response.code)) {
-        responsesCount.set(response.code, 0);
-      }
-
-      const temp = responsesCount.get(response.code) as number;
-      responsesCount.set(response.code, temp + 1);
-    });
-
-    return responsesCount;
+    return responses.reduce(
+      (acc, { code }) =>
+        acc.set(code, acc.has(code) ? (acc.get(code) as number) + 1 : 1),
+      new Map<HttpStatus, number>()
+    );
   }
 
   public getAdjustedInterval(interval: Interval): Interval {
-    const responses = this.responseRepository.getResponsesForInterval(interval);
+    const [response] =
+      this.responseRepository.getResponsesForInterval(interval);
 
-    if (responses[0].registeredAt > interval.start) {
+    if (response.registeredAt > interval.start) {
       return new Interval({
-        start: responses[0].registeredAt,
+        start: response.registeredAt,
         end: interval.end
       });
     }

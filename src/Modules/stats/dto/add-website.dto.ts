@@ -1,17 +1,16 @@
 import { Expose, Transform } from 'class-transformer';
-import { IsDefined, IsUrl } from 'class-validator';
+import { IsDefined, isURL } from 'class-validator';
 import { Duration, duration } from 'moment';
 import normalizeUrl from 'normalize-url';
 
 export class AddWebsiteDto {
   @Expose()
-  @IsUrl(
-    {
-      require_tld: false
-    },
-    { message: 'Url is invalid' }
+  @IsDefined({
+    message: 'Url is invalid'
+  })
+  @Transform(({ value }) =>
+    isURL(value, { require_tld: false }) ? normalizeUrl(value) : undefined
   )
-  @Transform(({ value }) => normalizeUrl(value))
   public readonly website!: string;
 
   @Expose()

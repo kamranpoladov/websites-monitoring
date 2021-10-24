@@ -25,8 +25,8 @@ export class StatsService {
     private readonly loggerService: LoggerService
   ) {}
 
-  public monitor({ website, interval, save }: AddWebsiteDto) {
-    // save logs to unique file if -S flag was provided
+  public async monitor({ website, interval, save }: AddWebsiteDto) {
+    // save logs to unique file if -s flag was provided
     save && this.loggerService.streamLogsToFile(`${website}.${Date.now()}.log`);
 
     const startStatsShortJob = () =>
@@ -53,7 +53,7 @@ export class StatsService {
           })
       });
 
-    this.schedulerService.addJob({
+    await this.schedulerService.addJob({
       name: FETCH_JOB_KEY,
       frequency: interval,
       callback: () => this.fetchWebsite(website),

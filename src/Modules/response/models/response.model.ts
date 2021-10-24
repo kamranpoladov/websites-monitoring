@@ -1,19 +1,15 @@
-import { HttpStatus } from '@nestjs/common';
 import { Expose, Transform } from 'class-transformer';
-import moment, { Duration, Moment } from 'moment';
+import moment, { Moment } from 'moment';
 
-export class ResponseModel {
-  @Expose()
-  public readonly time!: Duration;
+import { HttpResponseModel } from 'Providers/http/models';
 
-  @Expose()
-  public readonly code!: HttpStatus;
-
+export class ResponseModel extends HttpResponseModel {
   @Expose()
   @Transform(({ value }) => moment(value))
   public readonly registeredAt!: Moment;
 
   constructor(obj: ResponseModel) {
+    super();
     Object.assign(this, obj);
   }
 }

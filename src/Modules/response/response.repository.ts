@@ -22,8 +22,7 @@ export class ResponseRepository {
 
   // since responses are always sorted by registeredAt, use binary search for quicker find operations
   private getClosestResponseIndexToTime(time: Moment): number {
-    let start = 0;
-    let end = this.responses.length;
+    let [start, end] = [0, this.responses.length];
 
     while (start < end) {
       const mid = Math.floor((start + end) / 2);
@@ -43,7 +42,7 @@ export class ResponseRepository {
     if (this.responses.length === 0) return;
 
     const removeUntilIndex = this.getClosestResponseIndexToTime(time);
-    console.log(removeUntilIndex);
+
     this.responses.splice(0, removeUntilIndex);
   }
 }

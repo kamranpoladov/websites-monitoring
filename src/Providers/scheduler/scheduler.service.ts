@@ -17,6 +17,6 @@ export class SchedulerService {
     executeImmediately && (await callback());
     const interval = setInterval(callback, frequency.asMilliseconds());
     this.schedulerRegistry.addInterval(name, interval);
-    onStart && onStart();
+    onStart && onStart(); // execute onStart callback if it was provided
   }
 }

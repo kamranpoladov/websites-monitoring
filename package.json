@@ -1,7 +1,7 @@
 {
   "name": "websites-monitoring",
   "version": "1.0.0",
-  "main": "main.ts",
+  "main": "src/main.ts",
   "author": "Kamran Poladov",
   "license": "MIT",
   "scripts": {

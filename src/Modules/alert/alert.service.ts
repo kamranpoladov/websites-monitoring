@@ -19,7 +19,7 @@ export class AlertService {
     private readonly alertRepository: AlertRepository
   ) {}
 
-  // check if website is down or has recovered every time new response is registered
+  // Check if website is down or has recovered every time new response is registered
   @OnEvent(RegisterResponseEvent.eventName)
   private onRegisterResponse({ website }: RegisterResponseEvent): void {
     const start = moment().subtract(this.configService.downCheckDuration);
