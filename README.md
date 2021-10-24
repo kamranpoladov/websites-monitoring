@@ -192,7 +192,14 @@ public async addJob({
 ```
 public async monitor({ website, interval, save }: AddWebsiteDto) {
   // save logs to unique file if -s flag was provided
-  save && this.loggerService.streamLogsToFile(`${website}.${Date.now()}.log`);
+  if (save) {
+    const filename = `${website.replace(
+      FILE_NAME_REPLACER.search,
+      FILE_NAME_REPLACER.replace
+    )}.${Date.now()}`; // replace forward slashes with underscores
+
+    this.loggerService.streamLogsToFile(filename);
+  }
 
   const startStatsShortJob = () =>
     this.schedulerService.addJob({
@@ -222,7 +229,10 @@ public async monitor({ website, interval, save }: AddWebsiteDto) {
     name: FETCH_JOB_KEY,
     frequency: interval,
     callback: () => this.fetchWebsite(website),
-    onStart: () => (startStatsShortJob(), startStatsLongJob()),
+    onStart: () => {
+      startStatsShortJob();
+      startStatsLongJob();
+    },
     executeImmediately: true
   });
 }
@@ -252,6 +262,8 @@ public async registerResponse(url: string): Promise<void> {
     RegisterResponseEvent.eventName,
     new RegisterResponseEvent(url)
   );
+  
+  return response;
 }
 ```
 
