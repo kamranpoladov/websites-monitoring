@@ -7,11 +7,12 @@
   "scripts": {
     "start": "ts-node -P tsconfig.json -r tsconfig-paths/register src/main.ts",
     "start:dev": "ts-node-dev -P tsconfig.json -r tsconfig-paths/register src/main.ts",
+    "test": "jest",
     "test:types": "tsc --project tsconfig.json",
     "test:lint": "eslint src/ --ext .ts --color",
-    "test:lint:fix": "eslint src/ --ext .ts --color --fix",
     "test:prettier": "prettier --check \"./src/**/*.{json,ts}\"",
-    "test:prettier:fix": "prettier --write \"./src/**/*.{json,ts}\""
+    "fix:lint": "eslint src/ --ext .ts --color --fix",
+    "fix:prettier": "prettier --write \"./src/**/*.{json,ts}\""
   },
   "dependencies": {
     "@nestjs/axios": "^0.0.3",
@@ -54,12 +55,16 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": "tests",
     "testRegex": ".spec.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "testEnvironment": "node",
-    "moduleDirectories": ["node_modules", "src"]
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
+    "verbose": true
   }
 }

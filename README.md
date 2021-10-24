@@ -15,8 +15,12 @@ and HTTP status codes count.
 - [TypeScript](https://github.com/microsoft/TypeScript)
 - [Node.js](https://nodejs.org/)
 - [NestJS](https://nestjs.com/) *(progressive Node.js framework)*
-- [NestJS Console](https://www.npmjs.com/package/nestjs-console) *(NestJS Module that provides CLI tools)*
+  - [Console](https://www.npmjs.com/package/nestjs-console) *(module that provides CLI tools)*
+  - [Schedule](https://www.npmjs.com/package/@nestjs/schedule) *(module that provides cron and jobs scheduling tools)*
+  - [Event Emitter](https://www.npmjs.com/package/@nestjs/event-emitter) *(module that provides Node.js EventEmitter tools)*
+  - [Axios](https://www.npmjs.com/package/@nestjs/axios) *(module that provides promise based HTTP client)*
 - [Moment.js](https://momentjs.com/) *(working with time)*
+- [Jest](https://jestjs.io/) *(unit testing)*
 - [ESLint](https://eslint.org/) *(code analysis)*
 - [Prettier](https://prettier.io/) *(code formatting)*
 
@@ -411,5 +415,20 @@ public streamLogsToFile(filename: string) {
 ```
 
 ## Testing
+
+Unit tests are implemented to test alerting mechanism.
+
+`alert-listener.spec.ts` ensures that events are correctly emitted and listened to in order to trigger alert
+
+`alert-logic.spec.ts` ensures that `AlertService` correctly determines the type of alert to be triggered and whether it should be triggered at all
+
+### Scripts
+
+- `yarn test` - run all tests
+- `yarn test:types` - run the test for TypeScript types compatability
+- `yarn test:lint` - run ESLint code analysis test
+- `yarn fix:lint` - fix ESLint errors
+- `yarn test:prettier` - run Prettier code formatting test
+- `yarn fix:prettier` - fix Prettier errors
 
 ## Further thoughts
