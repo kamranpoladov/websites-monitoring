@@ -160,6 +160,10 @@ Website http://localhost:3000 recovered. Availability is 81% at 04:33:24 am
 
 ## Code examples
 
+### "Any fool can write code that a computer can understand. Good programmers write code that humans can understand" - Martin Fowler
+
+Regardless of this famous quote, the implementations of the most important features of the application along with explanations can be found in this section
+
 ### Periodic website fetching and statistics displaying
 
 `SchedulerService` is used to set up the jobs to be run periodically. It is based on `ScheduleModule` of `@nestjs/schedule` library but provides additional functionality such as optionally firing off the callback function immediately and a second callback to be run only once after a job starts
@@ -257,7 +261,7 @@ public async registerResponse(url: string): Promise<void> {
 
 ```
 @OnEvent(RegisterResponseEvent.eventName)
-private onRegisterResponse({ website }: RegisterResponseEvent): void {
+public onRegisterResponse({ website }: RegisterResponseEvent): void {
   const start = moment().subtract(this.configService.downCheckDuration);
   const now = moment();
   const interval = new Interval({ start, end: now });
@@ -328,6 +332,69 @@ private getClosestResponseIndexToTime(time: Moment): number {
   }
 
   return start;
+}
+```
+
+### Saving logs
+
+There is an option to save statistics per website into separate `.log` file when `--save` flag is present when starting the application. By default, all the logs are saved to `/logs` directory. This feature is implemented using `LoggerService#streamLogsToFile` method which enables writing all the logs into a file
+
+```
+📦logs
+ ┗ 📂2021
+ ┃ ┣ 📂October
+ ┃ ┃ ┣ 📂23
+ ┃ ┃ ┃ ┗ 📜http:__datadoghq.com.1635005863590.log
+ ┃ ┃ ┗ 📂24
+ ┃ ┃ ┃ ┣ 📜http:__datadoghq.com.1635095031859.log
+ ┃ ┃ ┃ ┗ 📜http:__localhost:3000.1635094224964.log
+ ┃ ┗ 📂September
+ ┃ ┃ ┗ 📂29
+ ┃ ┃ ┃ ┗ 📜http:__datadoghq.com.1632932263590.log
+```
+
+Note that *forward slash* characters are replaced with *underscore* characters since file names cannot contain *forward slashes* but they may appear in the website URL (e.g. path parameters). Additionally, a timestamp is attached to each file name to ensure uniqueness
+
+`src/Modules/stats/stats.service.ts`
+
+```
+public async monitor({ website, interval, save }: AddWebsiteDto) {
+  // save logs to unique file if -s flag was provided
+  if (save) {
+    const filename = `${website.replace(
+      FILE_NAME_REPLACER.search,
+      FILE_NAME_REPLACER.replace
+    )}.${Date.now()}`; // replace forward slashes with underscores
+
+    this.loggerService.streamLogsToFile(filename);
+  }
+  
+  ...
+```
+
+`src/Providers/logger/logger.service.ts`
+
+```
+public streamLogsToFile(filename: string) {
+  const now = moment();
+  const dirname = path.join(
+    this.options.logsDirectory,
+    `${now.year()}`,
+    `${now.format('MMMM')}`,
+    `${now.date()}`
+  );
+
+  this.logger.add(
+    new winston.transports.File({
+      level: 'info',
+      filename: `${filename}.log`,
+      dirname,
+      format: winston.format.combine(
+        winston.format.simple(),
+        winston.format.printf(info => info.message)
+      )
+    })
+  );
 }
 ```
 
