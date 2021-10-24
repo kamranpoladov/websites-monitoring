@@ -5,7 +5,7 @@ export class AddJobDto {
 
   public readonly frequency!: Duration;
 
-  public readonly callback!: () => void | Promise<void>;
+  public readonly callback!: () => unknown | Promise<unknown>;
 
   public readonly onStart?: () => void;
 

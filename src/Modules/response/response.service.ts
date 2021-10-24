@@ -20,9 +20,8 @@ export class ResponseService {
     private readonly configService: ConfigService
   ) {}
 
-  public async registerResponse(url: string): Promise<void> {
+  public async registerResponse(url: string): Promise<ResponseModel> {
     const httpResponse = await this.httpService.fetch(url);
-
     const response = plainToClass(ResponseModel, {
       ...httpResponse,
       registeredAt: moment().toISOString()
@@ -35,6 +34,8 @@ export class ResponseService {
       RegisterResponseEvent.eventName,
       new RegisterResponseEvent(url)
     );
+
+    return response;
   }
 
   // delete old responses every 30 minutes to free up memory
