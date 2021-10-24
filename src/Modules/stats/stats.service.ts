@@ -7,6 +7,8 @@ import { Interval } from 'Models';
 import { ResponseService } from 'Modules/response/response.service';
 import { StatsLogModel } from 'Providers/logger/models';
 
+import { FILE_NAME_REPLACER } from '../../Constants';
+
 import {
   DISPLAY_STATS_LONG_JOB_KEY,
   DISPLAY_STATS_SHORT_JOB_KEY,
@@ -27,7 +29,14 @@ export class StatsService {
 
   public async monitor({ website, interval, save }: AddWebsiteDto) {
     // save logs to unique file if -s flag was provided
-    save && this.loggerService.streamLogsToFile(`${website}.${Date.now()}.log`);
+    if (save) {
+      const filename = `${website.replace(
+        FILE_NAME_REPLACER.search,
+        FILE_NAME_REPLACER.replace
+      )}.${Date.now()}`; // replace forward slashes with underscores
+
+      this.loggerService.streamLogsToFile(filename);
+    }
 
     const startStatsShortJob = () =>
       this.schedulerService.addJob({
@@ -57,7 +66,10 @@ export class StatsService {
       name: FETCH_JOB_KEY,
       frequency: interval,
       callback: () => this.fetchWebsite(website),
-      onStart: () => (startStatsShortJob(), startStatsLongJob()),
+      onStart: () => {
+        startStatsShortJob();
+        startStatsLongJob();
+      },
       executeImmediately: true
     });
   }

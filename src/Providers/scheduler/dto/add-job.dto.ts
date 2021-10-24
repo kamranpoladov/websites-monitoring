@@ -7,7 +7,7 @@ export class AddJobDto {
 
   public readonly callback!: () => unknown | Promise<unknown>;
 
-  public readonly onStart?: () => void;
+  public readonly onStart?: () => unknown;
 
   public readonly executeImmediately?: boolean;
 }

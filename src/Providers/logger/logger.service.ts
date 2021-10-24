@@ -1,3 +1,6 @@
+import path from 'path';
+
+import moment from 'moment';
 import { Inject, Injectable } from '@nestjs/common';
 import winston, { Logger } from 'winston';
 
@@ -25,11 +28,19 @@ export class LoggerService {
   }
 
   public streamLogsToFile(filename: string) {
+    const now = moment();
+    const dirname = path.join(
+      this.options.logsDirectory,
+      `${now.year()}`,
+      `${now.format('MMMM')}`,
+      `${now.date()}`
+    );
+
     this.logger.add(
       new winston.transports.File({
         level: 'info',
-        filename,
-        dirname: this.options.logsDirectory,
+        filename: `${filename}.log`,
+        dirname,
         format: winston.format.combine(
           winston.format.simple(),
           winston.format.printf(info => info.message)

@@ -1,5 +1,5 @@
 export class RegisterResponseEvent {
-  public static eventName = Symbol('register-response');
+  public static eventName = 'register-response';
 
   constructor(public readonly website: string) {}
 }
