@@ -27,7 +27,7 @@ and HTTP status codes count.
 ## Installation
 
 ### Prerequisites
-Make sure that [Node.js](https://nodejs.org/en/) and [Git](https://git-scm.com/) is installed on your operating system
+Make sure that [Node.js](https://nodejs.org/en/) and [Git](https://git-scm.com/) are installed on your operating system
 
 ### Setup
 1) Install the application with **Git**:
