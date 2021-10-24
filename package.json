@@ -32,16 +32,34 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "@nestjs/testing": "^8.1.1",
     "@types/cron": "^1.7.3",
+    "@types/jest": "^27.0.2",
     "@types/node": "^16.11.1",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.2",
+    "jest": "^27.3.1",
     "prettier": "^2.4.1",
+    "ts-jest": "^27.0.7",
     "ts-node": "^10.3.0",
     "ts-node-dev": "^1.1.8",
     "tsconfig-paths": "^3.11.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".spec.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "testEnvironment": "node",
+    "moduleDirectories": ["node_modules", "src"]
   }
 }
