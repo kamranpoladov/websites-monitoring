@@ -32,7 +32,7 @@ and HTTP status codes count.
 - Optionally save the statistics in a separate `.log` file
 
 ## Tech stack
-- [TypeScript](https://github.com/microsoft/TypeScript)
+- [TypeScript](https://www.typescriptlang.org/)
 - [Node.js](https://nodejs.org/)
 - [NestJS](https://nestjs.com/) *(progressive Node.js framework)*
   - [Console](https://www.npmjs.com/package/nestjs-console) *(module that provides CLI tools)*
