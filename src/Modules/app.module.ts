@@ -5,6 +5,7 @@ import {
   ConfigModule,
   HttpModule,
   LoggerModule,
+  PrettyModule,
   SchedulerModule,
   ValidationModule
 } from 'Providers';
@@ -19,6 +20,7 @@ import { StatsModule } from './stats';
     EventEmitterModule.forRoot({ global: true, ignoreErrors: true }),
 
     // common modules
+    PrettyModule,
     LoggerModule.register({
       logsDirectory: 'logs'
     }),

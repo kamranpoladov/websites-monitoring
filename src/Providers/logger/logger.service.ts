@@ -1,11 +1,14 @@
 import path from 'path';
 
-import moment from 'moment';
 import { Inject, Injectable } from '@nestjs/common';
-import winston, { Logger } from 'winston';
+import moment from 'moment';
+import { Logger, createLogger, format, transports } from 'winston';
+import { table } from 'table';
 
 import { TIME_FORMAT } from 'Constants';
 import { AlertType } from 'Modules/alert/constants';
+
+import { PrettyService } from '../pretty';
 
 import { LOGGER_MODULE_OPTIONS, LoggerOptions } from './logger.options';
 import { AlertLogModel, StatsLogModel } from './models';
@@ -16,14 +19,15 @@ export class LoggerService {
 
   constructor(
     @Inject(LOGGER_MODULE_OPTIONS)
-    private readonly options: LoggerOptions
+    private readonly options: LoggerOptions,
+    private readonly prettyService: PrettyService
   ) {
-    this.logger = winston.createLogger({
-      format: winston.format.combine(
-        winston.format.simple(),
-        winston.format.printf(info => info.message)
+    this.logger = createLogger({
+      format: format.combine(
+        format.simple(),
+        format.printf(info => info.message)
       ),
-      transports: [new winston.transports.Console()]
+      transports: [new transports.Console()]
     });
   }
 
@@ -37,13 +41,13 @@ export class LoggerService {
     );
 
     this.logger.add(
-      new winston.transports.File({
+      new transports.File({
         level: 'info',
-        filename: `${filename}.log`,
+        filename: `${filename}.rft`,
         dirname,
-        format: winston.format.combine(
-          winston.format.simple(),
-          winston.format.printf(info => info.message)
+        format: format.combine(
+          format.simple(),
+          format.printf(info => info.message)
         )
       })
     );
@@ -57,52 +61,61 @@ export class LoggerService {
     this.logger.error(message);
   }
 
-  private title(title: string) {
-    this.logger.info(
-      `\n\n--------------------------------------- ${title} ---------------------------------------\n\n`
-    );
-  }
-
-  private statusCodes(statusCodesCount: StatsLogModel['statusCodesCount']) {
-    this.info('\nStatus\tFrequency\n');
-
-    statusCodesCount.forEach((count, code) => {
-      this.info(`${code}\t${count}`);
-    });
-  }
-
   public stats(stats: StatsLogModel) {
-    this.title(`${stats.type} STATS`);
+    const title = `${stats.type} STATS`;
 
-    this.info(
-      `Displaying stats for ${stats.website} ${stats.interval.format()}`
-    );
-    this.info(
-      `Average response time: ${stats.averageResponseTime.asMilliseconds()} ms`
-    );
-    this.info(
-      `Maximum response time: ${stats.maxResponseTime.asMilliseconds()} ms`
-    );
-    this.info(`Availability: ${stats.availability}%`);
+    const displayLabelMessage = `Displaying stats for ${
+      stats.website
+    } ${stats.interval.format()}`;
+    const averageMessage = `Average response time: ${stats.averageResponseTime.asMilliseconds()} ms`;
+    const maximumMessage = `Maximum response time: ${stats.maxResponseTime.asMilliseconds()} ms`;
+    const availabilityMessage = `Availability: ${stats.availability}%`;
 
-    this.statusCodes(stats.statusCodesCount);
+    const sortedStatusCodesMap = new Map(
+      [...stats.statusCodesCount.entries()].sort(([a], [b]) => a - b)
+    );
+
+    const data = Array.from(sortedStatusCodesMap.entries());
+
+    const statusCodesTable = table([['Status', 'Frequency'], ...data]);
+
+    const prettyMessage = this.prettyService.wrap(
+      title,
+      displayLabelMessage,
+      averageMessage,
+      maximumMessage,
+      availabilityMessage,
+      statusCodesTable
+    );
+
+    this.info(prettyMessage);
   }
 
   public alert(alertLog: AlertLogModel) {
+    const alertTitle =
+      alertLog.type === AlertType.Down ? 'ALERT DOWN' : 'ALERT RECOVER';
+    const availabilityMessage = `Availability is ${
+      alertLog.availability
+    }% at ${alertLog.time.format(TIME_FORMAT)}`;
+
     if (alertLog.type === AlertType.Down) {
-      this.title('ALERT DOWN');
-      this.info(
-        `Website ${alertLog.website} is down. Availability is ${
-          alertLog.availability
-        }% at ${alertLog.time.format(TIME_FORMAT)}`
+      const infoMessage = `Website ${alertLog.website} is down`;
+
+      const prettyMessage = this.prettyService.wrap(
+        alertTitle,
+        infoMessage,
+        availabilityMessage
       );
+      this.info(prettyMessage);
     } else {
-      this.title('ALERT RECOVER');
-      this.info(
-        `Website ${alertLog.website} recovered. Availability is ${
-          alertLog.availability
-        }% at ${alertLog.time.format(TIME_FORMAT)}`
+      const infoMessage = `Website ${alertLog.website} has recovered`;
+
+      const prettyMessage = this.prettyService.wrap(
+        alertTitle,
+        infoMessage,
+        availabilityMessage
       );
+      this.info(prettyMessage);
     }
   }
 }
