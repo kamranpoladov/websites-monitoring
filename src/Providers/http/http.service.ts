@@ -1,11 +1,11 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
 import { HttpService as HttpService2 } from '@nestjs/axios';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { AxiosError } from 'axios';
 import moment, { duration } from 'moment';
 import { lastValueFrom } from 'rxjs';
-import { AxiosError } from 'axios';
 
-import { HttpResponseModel } from './models';
 import { ErrorMessage, TIMEOUT } from './constants';
+import { HttpResponseModel } from './models';
 
 @Injectable()
 export class HttpService {
@@ -31,15 +31,16 @@ export class HttpService {
       const end = moment();
 
       response.time = duration(end.valueOf() - start.valueOf());
-      response.code = HttpStatus.INTERNAL_SERVER_ERROR; // default if we can't get any other info
 
-      if (error.code) {
-        if (!isNaN(+error.code)) {
-          response.code = +error.code;
-        } else if (error.code === ErrorMessage.Timeout) {
+      if (error.response && error.response.status) {
+        response.code = error.response.status;
+      } else {
+        if (error.code === ErrorMessage.Timeout) {
           response.code = HttpStatus.REQUEST_TIMEOUT;
         } else if (error.code === ErrorMessage.BadGateway) {
           response.code = HttpStatus.BAD_GATEWAY;
+        } else {
+          response.code = HttpStatus.INTERNAL_SERVER_ERROR;
         }
       }
 
