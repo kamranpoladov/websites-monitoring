@@ -63,7 +63,7 @@ describe('AlertService Listener', () => {
       await responseService.registerResponse(website);
     });
 
-    it('then should event an event', () => {
+    it('then should emit an event', () => {
       expect(emitSpy).toBeCalled();
     });
 
