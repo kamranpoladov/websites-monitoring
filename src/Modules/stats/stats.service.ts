@@ -59,7 +59,8 @@ export class StatsService {
             website,
             duration: this.configService.longDuration,
             statsType: StatsType.Long
-          })
+          }),
+        executeImmediately: true
       });
 
     await this.schedulerService.addJob({
@@ -68,7 +69,10 @@ export class StatsService {
       callback: () => this.fetchWebsite(website),
       onStart: () => {
         startStatsShortJob();
-        startStatsLongJob();
+        setTimeout(
+          () => startStatsLongJob(),
+          this.configService.shortDuration.asMilliseconds()
+        );
       },
       executeImmediately: true
     });
