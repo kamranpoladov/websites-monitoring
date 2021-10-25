@@ -4,6 +4,26 @@ CLI application that allows users to monitor websites' performance, gathering st
 about average response time, maximum responses time, availability of a given website 
 and HTTP status codes count.
 
+## Table of contents
+
+* [Features](#features)
+* [Tech stack](#tech-stack)
+* [Installation](#installation)
+  * [Prerequisites](#prerequisites)
+  * [Setup](#setup)
+* [Usage](#usage)
+  * [Format](#format)
+  * [Available options](#available-options)
+  * [Examples](#examples)
+* [Interface](#interface)
+* [Code examples](#code-examples)
+  * [Periodic website fetching and statistics displaying](#periodic-website-fetching-and-statistics-displaying)
+  * [Alerting logic](#alerting-logic)
+  * [Optimization](#optimization)
+  * [Saving logs](#saving-logs)
+* [Testing](#testing)
+* [Further thoughts](#further-thoughts)
+
 ## Features
 - Have a single instance of a program to be responsible for monitoring a single website
 - Send GET requests to a website over custom defined frequency
@@ -40,10 +60,22 @@ $ cd websites-monitoring
 $ yarn install
 ```
 
+or
+
+```
+$ npm install
+```
+
 ## Usage
 ### Format
 ```
 $ yarn start monitor [options]
+```
+
+or
+
+```
+$ npm start monitor -- [options]
 ```
 
 ### Available options
