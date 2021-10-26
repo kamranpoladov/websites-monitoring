@@ -1,3 +1,4 @@
+import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { Test } from '@nestjs/testing';
 import { AlertRepository } from '../../src/Modules/alert/alert.repository';
@@ -26,6 +27,7 @@ describe('AlertService Logic', () => {
     const module = await Test.createTestingModule({
       imports: [
         EventEmitterModule.forRoot({ global: true }),
+        ConfigModule.forRoot({ isGlobal: true }),
         AppConfigModule,
         HttpModule,
         ResponseModule
