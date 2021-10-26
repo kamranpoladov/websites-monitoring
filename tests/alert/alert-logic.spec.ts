@@ -5,7 +5,11 @@ import { AlertService } from '../../src/Modules/alert/alert.service';
 import { AlertType } from '../../src/Modules/alert/constants';
 import { ResponseModule } from '../../src/Modules/response';
 import { ResponseService } from '../../src/Modules/response/response.service';
-import { ConfigModule, HttpModule, LoggerService } from '../../src/Providers';
+import {
+  AppConfigModule,
+  HttpModule,
+  LoggerService
+} from '../../src/Providers';
 
 describe('AlertService Logic', () => {
   const website = 'example.com';
@@ -15,11 +19,14 @@ describe('AlertService Logic', () => {
   let loggerService: LoggerService;
   let responseService: ResponseService;
 
+  let getAvailabilitySpy: jest.SpyInstance;
+  let getIsDownSpy: jest.SpyInstance;
+
   beforeAll(async () => {
     const module = await Test.createTestingModule({
       imports: [
         EventEmitterModule.forRoot({ global: true }),
-        ConfigModule,
+        AppConfigModule,
         HttpModule,
         ResponseModule
       ],
@@ -45,6 +52,13 @@ describe('AlertService Logic', () => {
     alertRepository = module.get(AlertRepository);
     loggerService = module.get(LoggerService);
     responseService = module.get(ResponseService);
+
+    getAvailabilitySpy = jest.spyOn(responseService, 'getAvailability');
+    getIsDownSpy = jest.spyOn(alertRepository, 'getIsDown');
+  });
+
+  beforeEach(async () => {
+    await alertService.onRegisterResponse({ website });
   });
 
   afterEach(() => {
@@ -53,16 +67,16 @@ describe('AlertService Logic', () => {
 
   describe('when availability is less than 80%', () => {
     beforeAll(() => {
-      responseService.getAvailability = jest.fn().mockReturnValue(79);
+      getAvailabilitySpy.mockReturnValue(79);
     });
 
-    beforeEach(() => {
-      alertService.onRegisterResponse({ website });
-    });
+    // beforeEach(() => {
+    //   alertService.onRegisterResponse({ website });
+    // });
 
     describe('and when website is not currently down', () => {
       beforeAll(() => {
-        alertRepository.getIsDown = jest.fn().mockReturnValue(false);
+        getIsDownSpy.mockReturnValue(false);
       });
 
       it('then should trigger alert', () => {
@@ -81,7 +95,7 @@ describe('AlertService Logic', () => {
 
     describe('and when website is currently down', () => {
       beforeAll(() => {
-        alertRepository.getIsDown = jest.fn().mockReturnValue(true);
+        getIsDownSpy.mockReturnValue(true);
       });
 
       it('then should not trigger alert', () => {
@@ -92,16 +106,16 @@ describe('AlertService Logic', () => {
 
   describe('when availability is greater than or equal to 80%', () => {
     beforeAll(() => {
-      responseService.getAvailability = jest.fn().mockReturnValue(80);
+      getAvailabilitySpy.mockReturnValue(80);
     });
 
-    beforeEach(() => {
-      alertService.onRegisterResponse({ website });
-    });
+    // beforeEach(() => {
+    //   alertService.onRegisterResponse({ website });
+    // });
 
     describe('and when website is currently down', () => {
       beforeAll(() => {
-        alertRepository.getIsDown = jest.fn().mockReturnValue(true);
+        getIsDownSpy.mockReturnValue(true);
       });
 
       it('then should trigger alert', () => {
@@ -120,7 +134,7 @@ describe('AlertService Logic', () => {
 
     describe('and when website is not currently down', () => {
       beforeAll(() => {
-        alertRepository.getIsDown = jest.fn().mockReturnValue(false);
+        getIsDownSpy.mockReturnValue(false);
       });
 
       it('then should not trigger alert', () => {

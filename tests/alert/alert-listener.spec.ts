@@ -4,7 +4,7 @@ import { AlertService } from '../../src/Modules/alert/alert.service';
 import { RegisterResponseEvent } from '../../src/Modules/response/events';
 import { ResponseRepository } from '../../src/Modules/response/response.repository';
 import { ResponseService } from '../../src/Modules/response/response.service';
-import { ConfigModule, HttpModule, LoggerModule } from '../../src/Providers';
+import { AppConfigModule, HttpModule, LoggerModule } from '../../src/Providers';
 
 describe('AlertService Listener', () => {
   const website = 'example.com';
@@ -17,7 +17,7 @@ describe('AlertService Listener', () => {
     const module = await Test.createTestingModule({
       imports: [
         EventEmitterModule.forRoot({ global: true }),
-        ConfigModule,
+        AppConfigModule,
         HttpModule,
         LoggerModule
       ],
