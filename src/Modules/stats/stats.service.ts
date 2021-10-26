@@ -41,8 +41,8 @@ export class StatsService {
     const startStatsShortJob = () =>
       this.schedulerService.addJob({
         name: DISPLAY_STATS_SHORT_JOB_KEY,
-        frequency: this.configService.shortFrequency,
-        callback: () =>
+        period: this.appConfigService.shortInterval,
+        job: async () =>
           this.displayStats({
             website,
             duration: this.configService.shortDuration,
@@ -53,8 +53,8 @@ export class StatsService {
     const startStatsLongJob = () =>
       this.schedulerService.addJob({
         name: DISPLAY_STATS_LONG_JOB_KEY,
-        frequency: this.configService.longFrequency,
-        callback: () =>
+        period: this.appConfigService.longInterval,
+        job: async () =>
           this.displayStats({
             website,
             duration: this.configService.longDuration,
@@ -65,9 +65,9 @@ export class StatsService {
 
     await this.schedulerService.addJob({
       name: FETCH_JOB_KEY,
-      frequency: interval,
-      callback: () => this.fetchWebsite(website),
-      onStart: () => {
+      period: interval,
+      job: () => this.fetchWebsite(website),
+      callback: async () => {
         startStatsShortJob();
         setTimeout(
           () => startStatsLongJob(),
