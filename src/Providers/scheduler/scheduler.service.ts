@@ -21,7 +21,7 @@ export class SchedulerService {
       executeImmediately
     });
 
-    callback?.(); // execute onStart callback if it was provided
+    callback?.(); // execute callback if it was provided
   }
 
   private async executeAndScheduleJob({
@@ -29,7 +29,7 @@ export class SchedulerService {
     job,
     period,
     executeImmediately
-  }: AddJobDto): Promise<void> {
+  }: Omit<AddJobDto, 'callback'>): Promise<void> {
     if (executeImmediately) await job();
     const interval = setInterval(job, period.asMilliseconds());
     this.schedulerRegistry.addInterval(name, interval);
