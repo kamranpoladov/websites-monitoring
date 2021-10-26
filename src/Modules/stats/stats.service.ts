@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import moment from 'moment';
 import { plainToClass } from 'class-transformer';
 
-import { ConfigService, LoggerService, SchedulerService } from 'Providers';
+import { AppConfigService, LoggerService, SchedulerService } from 'Providers';
 import { Interval } from 'Models';
 import { ResponseService } from 'Modules/response/response.service';
 import { StatsLogModel } from 'Providers/logger/models';
@@ -23,7 +23,7 @@ export class StatsService {
   constructor(
     private readonly schedulerService: SchedulerService,
     private readonly responseService: ResponseService,
-    private readonly configService: ConfigService,
+    private readonly appConfigService: AppConfigService,
     private readonly loggerService: LoggerService
   ) {}
 
@@ -45,7 +45,7 @@ export class StatsService {
         job: async () =>
           this.displayStats({
             website,
-            duration: this.configService.shortDuration,
+            duration: this.appConfigService.shortDuration,
             statsType: StatsType.Short
           })
       });
@@ -57,7 +57,7 @@ export class StatsService {
         job: async () =>
           this.displayStats({
             website,
-            duration: this.configService.longDuration,
+            duration: this.appConfigService.longDuration,
             statsType: StatsType.Long
           }),
         executeImmediately: true
@@ -71,7 +71,7 @@ export class StatsService {
         startStatsShortJob();
         setTimeout(
           () => startStatsLongJob(),
-          this.configService.shortDuration.asMilliseconds()
+          this.appConfigService.shortDuration.asMilliseconds()
         );
       },
       executeImmediately: true

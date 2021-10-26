@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
 import {
-  ConfigModule,
+  AppConfigModule,
   HttpModule,
   LoggerModule,
   PrettyModule,
@@ -18,6 +19,7 @@ import { StatsModule } from './stats';
   imports: [
     // core modules
     EventEmitterModule.forRoot({ global: true, ignoreErrors: true }),
+    ConfigModule.forRoot({ isGlobal: true }),
 
     // common modules
     PrettyModule,
@@ -26,7 +28,7 @@ import { StatsModule } from './stats';
     }),
     ValidationModule,
     HttpModule,
-    ConfigModule,
+    AppConfigModule,
     SchedulerModule,
 
     // application modules

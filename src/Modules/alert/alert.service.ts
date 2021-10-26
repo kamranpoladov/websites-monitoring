@@ -4,7 +4,7 @@ import moment from 'moment';
 
 import { Interval } from 'Models';
 import { ResponseService } from 'Modules/response/response.service';
-import { ConfigService, LoggerService } from 'Providers';
+import { AppConfigService, LoggerService } from 'Providers';
 import { RegisterResponseEvent } from 'Modules/response/events';
 
 import { AlertRepository } from './alert.repository';
@@ -15,19 +15,19 @@ export class AlertService {
   constructor(
     private readonly loggerService: LoggerService,
     private readonly responseService: ResponseService,
-    private readonly configService: ConfigService,
+    private readonly appConfigService: AppConfigService,
     private readonly alertRepository: AlertRepository
   ) {}
 
   // Check if website is down or has recovered every time new response is registered
   @OnEvent(RegisterResponseEvent.eventName)
   public onRegisterResponse({ website }: RegisterResponseEvent): void {
-    const start = moment().subtract(this.configService.downCheckDuration);
+    const start = moment().subtract(this.appConfigService.downCheckDuration);
     const now = moment();
     const interval = new Interval({ start, end: now });
 
     const availability = this.responseService.getAvailability(interval);
-    const targetAvailability = this.configService.alertAvailability;
+    const targetAvailability = this.appConfigService.alertAvailability;
     const currentlyDown = this.alertRepository.getIsDown();
 
     this.alertRepository.setIsDown(availability < targetAvailability);

@@ -4,7 +4,7 @@ import moment, { duration } from 'moment';
 import { EventEmitter2 as EventEmitter } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
-import { ConfigService, HttpService } from 'Providers';
+import { AppConfigService, HttpService } from 'Providers';
 import { Interval } from 'Models';
 
 import { ResponseModel, ResponseTimesModel } from './models';
@@ -17,7 +17,7 @@ export class ResponseService {
     private readonly responseRepository: ResponseRepository,
     private readonly httpService: HttpService,
     private readonly eventEmitter: EventEmitter,
-    private readonly configService: ConfigService
+    private readonly appConfigService: AppConfigService
   ) {}
 
   public async registerResponse(url: string): Promise<ResponseModel> {
@@ -41,7 +41,7 @@ export class ResponseService {
   // delete old responses every 30 minutes to free up memory
   @Cron(CronExpression.EVERY_30_MINUTES)
   private deleteOldResponses() {
-    const time = moment().subtract(this.configService.longDuration);
+    const time = moment().subtract(this.appConfigService.longDuration);
 
     this.responseRepository.clearBeforeTime(time);
   }
