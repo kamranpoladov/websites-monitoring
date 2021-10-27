@@ -7,8 +7,6 @@ import { Interval } from 'Models';
 import { ResponseService } from 'Modules/response/response.service';
 import { StatsLogModel } from 'Providers/logger/models';
 
-import { FILE_NAME_REPLACER } from '../../Constants';
-
 import {
   DISPLAY_STATS_LONG_JOB_KEY,
   DISPLAY_STATS_SHORT_JOB_KEY,
@@ -27,17 +25,7 @@ export class StatsService {
     private readonly loggerService: LoggerService
   ) {}
 
-  public async monitor({ website, interval, save }: AddWebsiteDto) {
-    // save logs to unique file if -s flag was provided
-    if (save) {
-      const filename = `${website.replace(
-        FILE_NAME_REPLACER.search,
-        FILE_NAME_REPLACER.replace
-      )}.${Date.now()}`; // replace forward slashes with underscores
-
-      this.loggerService.streamLogsToFile(filename);
-    }
-
+  public async monitor({ website, interval }: AddWebsiteDto) {
     const startStatsShortJob = () =>
       this.schedulerService.addJob({
         name: DISPLAY_STATS_SHORT_JOB_KEY,
@@ -86,7 +74,7 @@ export class StatsService {
     const availability = this.responseService.getAvailability(interval);
     const { average: averageResponseTime, max: maxResponseTime } =
       this.responseService.getResponseTimes(interval);
-    const statusCodesCount =
+    const httpStatusCount =
       this.responseService.getResponseCodesCount(interval);
     const adjustedInterval = this.responseService.getAdjustedInterval(interval);
 
@@ -94,7 +82,7 @@ export class StatsService {
       availability,
       averageResponseTime,
       maxResponseTime,
-      statusCodesCount,
+      httpStatusCount,
       interval: adjustedInterval.plain
     });
   }

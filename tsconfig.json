@@ -11,7 +11,7 @@
     "esModuleInterop": true,
     "incremental": true,
     "isolatedModules": true,
-    "noEmit": true
+    "outDir": "./build"
   },
   "include": ["src"]
 }

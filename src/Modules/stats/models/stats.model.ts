@@ -15,7 +15,7 @@ export class StatsModel {
   public maxResponseTime!: Duration;
 
   @Expose()
-  public statusCodesCount!: Map<HttpStatus, number>;
+  public httpStatusCount!: Map<HttpStatus, number>;
 
   @Expose()
   @Type(() => Interval)

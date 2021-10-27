@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ShellModule as NestShellModule } from 'nestjs-shell';
 
 import {
   AppConfigModule,
@@ -13,6 +14,7 @@ import {
 
 import { AlertModule } from './alert';
 import { ResponseModule } from './response';
+import { ShellModule } from './shell';
 import { StatsModule } from './stats';
 
 @Module({
@@ -20,6 +22,7 @@ import { StatsModule } from './stats';
     // core modules
     EventEmitterModule.forRoot({ global: true, ignoreErrors: true }),
     ConfigModule.forRoot({ isGlobal: true }),
+    NestShellModule,
 
     // common modules
     PrettyModule,
@@ -34,7 +37,8 @@ import { StatsModule } from './stats';
     // application modules
     StatsModule,
     ResponseModule,
-    AlertModule
+    AlertModule,
+    ShellModule
   ]
 })
 export class AppModule {}

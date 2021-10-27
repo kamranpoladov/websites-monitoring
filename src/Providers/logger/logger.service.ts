@@ -1,7 +1,4 @@
-import path from 'path';
-
 import { Inject, Injectable } from '@nestjs/common';
-import moment from 'moment';
 import { Logger, createLogger, format, transports } from 'winston';
 import { table } from 'table';
 
@@ -31,28 +28,6 @@ export class LoggerService {
     });
   }
 
-  public streamLogsToFile(filename: string) {
-    const now = moment();
-    const dirname = path.join(
-      this.options.logsDirectory,
-      `${now.year()}`,
-      `${now.format('MMMM')}`,
-      `${now.date()}`
-    );
-
-    this.logger.add(
-      new transports.File({
-        level: 'info',
-        filename: `${filename}.rft`,
-        dirname,
-        format: format.combine(
-          format.simple(),
-          format.printf(info => info.message)
-        )
-      })
-    );
-  }
-
   public info(message: string) {
     this.logger.info(message);
   }
@@ -62,7 +37,7 @@ export class LoggerService {
   }
 
   public stats(stats: StatsLogModel) {
-    const title = `${stats.type} STATS`;
+    const title = `${stats.website} - ${stats.type} STATS`;
 
     const displayLabelMessage = `Displaying stats for ${
       stats.website
@@ -71,22 +46,24 @@ export class LoggerService {
     const maximumMessage = `Maximum response time: ${stats.maxResponseTime.asMilliseconds()} ms`;
     const availabilityMessage = `Availability: ${stats.availability}%`;
 
-    const sortedStatusCodesMap = new Map(
-      [...stats.statusCodesCount.entries()].sort(([a], [b]) => a - b)
+    const httpStatusCountSorted = new Map(
+      [...stats.httpStatusCount.entries()].sort(([a], [b]) => a - b)
     );
 
-    const data = Array.from(sortedStatusCodesMap.entries());
+    const data = Array.from(httpStatusCountSorted.entries());
 
     const statusCodesTable = table([['Status', 'Frequency'], ...data]);
 
-    const prettyMessage = this.prettyService.wrap(
-      title,
-      displayLabelMessage,
-      averageMessage,
-      maximumMessage,
-      availabilityMessage,
-      statusCodesTable
-    );
+    const prettyMessage = this.prettyService
+      .withTitle(title)
+      .withMessages(
+        displayLabelMessage,
+        averageMessage,
+        maximumMessage,
+        availabilityMessage,
+        statusCodesTable
+      )
+      .buildBox();
 
     this.info(prettyMessage);
   }
@@ -94,6 +71,7 @@ export class LoggerService {
   public alert(alertLog: AlertLogModel) {
     const alertTitle =
       alertLog.type === AlertType.Down ? 'ALERT DOWN' : 'ALERT RECOVER';
+    this.prettyService.withTitle(alertTitle);
     const availabilityMessage = `Availability is ${
       alertLog.availability
     }% at ${alertLog.time.format(TIME_FORMAT)}`;
@@ -101,20 +79,16 @@ export class LoggerService {
     if (alertLog.type === AlertType.Down) {
       const infoMessage = `Website ${alertLog.website} is down`;
 
-      const prettyMessage = this.prettyService.wrap(
-        alertTitle,
-        infoMessage,
-        availabilityMessage
-      );
+      const prettyMessage = this.prettyService
+        .withMessages(infoMessage, availabilityMessage)
+        .buildBox();
       this.info(prettyMessage);
     } else {
       const infoMessage = `Website ${alertLog.website} has recovered`;
 
-      const prettyMessage = this.prettyService.wrap(
-        alertTitle,
-        infoMessage,
-        availabilityMessage
-      );
+      const prettyMessage = this.prettyService
+        .withMessages(infoMessage, availabilityMessage)
+        .buildBox();
       this.info(prettyMessage);
     }
   }
