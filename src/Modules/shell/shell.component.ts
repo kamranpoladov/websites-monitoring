@@ -37,9 +37,7 @@ export class ShellComponent extends NestShellComponent {
     const errors = await this.validationService.validate(monitorWebsiteDto);
 
     if (!errors.length) {
-      openTerminal(
-        `ts-node -P tsconfig.json -r tsconfig-paths/register src/main.ts monitor -w ${website} -i ${interval}`
-      );
+      openTerminal(`node build/main.js monitor -w ${website} -i ${interval}`);
 
       return `\nMonitoring ${website}!\n`;
     } else {

@@ -52,15 +52,15 @@ Make sure that [Node.js](https://nodejs.org/en/) and [Git](https://git-scm.com/)
 $ git clone https://github.com/kamranpoladov/websites-monitoring.git
 $ cd websites-monitoring
 ```
-2) Install the dependencies with either **npm** or **Yarn**:
+
+2) Install the dependencies with **npm**:
 ```
 $ npm install
 ```
 
-or
-
+3) Build the project:
 ```
-$ yarn install
+$ npm run build
 ```
 
 ## Usage
@@ -77,12 +77,6 @@ May you not have any of those installed, you still can run the application in [a
 
 ### Primary way
 ```
-$ yarn start
-```
-
-or
-
-```
 $ npm start
 ```
 
@@ -98,7 +92,7 @@ Start using this shell to monitor different websites
 ### Examples
 
 ```
-$ yarn start
+$ npm start
 > monitor datadoghq.com 5
 
 Monitoring datadoghq.com!
@@ -140,16 +134,11 @@ Bye-bye!
 ### Alternative way
 
 As mentioned, you still can use the application even if you don't have a supported terminal installed. This method will not automatically open a new terminal window for each website you are adding. Instead, you will have to use flags to monitor a website inside your current window. To add a new website, you will have to start the application again in another terminal instance
-
-```
-$ yarn start:manual [options]
-```
-
-or
-
 ```
 $ npm run start:manual -- [options]
 ```
+
+Note that `--` coming after `start:manual` is **very important**
 
 #### Required options
 
@@ -426,11 +415,11 @@ Unit tests are implemented to test alerting mechanism.
 
 ### Scripts
 
-- `yarn test` - run all tests
-- `yarn test:types` - run the test for TypeScript types compatability
-- `yarn test:lint` - run ESLint code analysis test
-- `yarn fix:lint` - fix ESLint errors
-- `yarn test:prettier` - run Prettier code formatting test
-- `yarn fix:prettier` - fix Prettier errors
+- `npm run test` - run all tests
+- `npm run test:types` - run the test for TypeScript types compatability
+- `npm run test:lint` - run ESLint code analysis test
+- `npm run fix:lint` - fix ESLint errors
+- `npm run test:prettier` - run Prettier code formatting test
+- `npm run fix:prettier` - fix Prettier errors
 
 ## Further thoughts

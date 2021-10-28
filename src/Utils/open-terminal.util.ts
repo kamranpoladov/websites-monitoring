@@ -4,9 +4,7 @@ export const openTerminal = (command: string) => {
   switch (process.platform) {
     case 'linux':
       try {
-        execSync(`gnome-terminal -e "${command}"`, {
-          stdio: 'ignore'
-        });
+        execSync(`gnome-terminal -- ${command}`, { stdio: 'ignore' });
       } catch (e) {
         console.log(
           'Sorry, your terminal application is currently not supported'
