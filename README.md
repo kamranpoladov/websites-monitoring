@@ -35,7 +35,7 @@ about average response time, maximum responses time, availability and HTTP statu
 - [Node.js](https://nodejs.org/)
 - [NestJS](https://nestjs.com/) *- progressive Node.js framework*
 - [Winston](https://github.com/winstonjs/winston) *- logger*
-- [Boxen](https://github.com/sindresorhus/boxen) & [Chalk](https://github.com/chalk/chalk) *- console output formatting*
+- [Boxen](https://github.com/sindresorhus/boxen) *- console output formatting*
 - [Moment.js](https://momentjs.com/) *- working with time*
 - [Jest](https://jestjs.io/) *- unit testing*
 - [ESLint](https://eslint.org/) *- code analysis*
@@ -44,7 +44,8 @@ about average response time, maximum responses time, availability and HTTP statu
 ## Installation
 
 ### Prerequisites
-Make sure that [Node.js](https://nodejs.org/en/) and [Git](https://git-scm.com/) are installed on your operating system
+- [Node.js](https://nodejs.org/en/) - version `16.13.0` is recommended, at least `12.22.7` is required
+- [Git](https://git-scm.com/) - not required if you download project as a zip file
 
 ### Setup
 1) Install the application with **Git**:
@@ -103,7 +104,6 @@ Monitoring datadoghq.com!
    ┃                    ┃
    ┃   Url is invalid   ┃
    ┃                    ┃
-   ┃                    ┃
    ┗━━━━━━━━━━━━━━━━━━━━┛
 
 > monitor localhost:3000 2
@@ -111,7 +111,6 @@ Monitoring datadoghq.com!
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━ Validation failed ━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃                                                                     ┃
    ┃   Interval has to be a positive number greater than or equal to 3   ┃
-   ┃                                                                     ┃
    ┃                                                                     ┃
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
