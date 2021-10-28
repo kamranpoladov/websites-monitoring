@@ -5,27 +5,23 @@ import boxen, { Options } from 'boxen';
 export class PrettyService {
   private options: Options;
   private messages: string[];
+  private readonly defaultOptions: Options = {
+    borderStyle: 'bold',
+    padding: 1,
+    margin: 1,
+    titleAlignment: 'center',
+    textAlignment: 'center'
+  };
 
   constructor() {
     this.options = {
-      borderStyle: 'bold',
-      padding: 1,
-      margin: 1,
-      titleAlignment: 'center',
-      textAlignment: 'center'
+      ...this.defaultOptions
     };
     this.messages = [];
   }
 
   public buildBox() {
-    const text = boxen(
-      this.messages.reduce(
-        (acc, curr, i) =>
-          i === this.messages.length - 1 ? acc + curr : acc + curr + '\n',
-        ''
-      ),
-      this.options
-    );
+    const text = boxen(this.messages.join('\n'), this.options);
     this.reset();
 
     return text;
@@ -51,11 +47,7 @@ export class PrettyService {
 
   private reset() {
     this.options = {
-      borderStyle: 'bold',
-      padding: 1,
-      margin: 1,
-      titleAlignment: 'center',
-      textAlignment: 'center'
+      ...this.defaultOptions
     };
     this.messages = [];
   }

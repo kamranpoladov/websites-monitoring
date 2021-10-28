@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ConsoleModule } from 'nestjs-console';
 import { ShellModule as NestShellModule } from 'nestjs-shell';
 
 import {
@@ -22,13 +23,12 @@ import { StatsModule } from './stats';
     // core modules
     EventEmitterModule.forRoot({ global: true, ignoreErrors: true }),
     ConfigModule.forRoot({ isGlobal: true }),
+    ConsoleModule,
     NestShellModule,
 
     // common modules
     PrettyModule,
-    LoggerModule.register({
-      logsDirectory: 'logs'
-    }),
+    LoggerModule,
     ValidationModule,
     HttpModule,
     AppConfigModule,

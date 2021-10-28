@@ -1,4 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { URL } from 'url';
+
+import { Injectable } from '@nestjs/common';
 import { Logger, createLogger, format, transports } from 'winston';
 import { table } from 'table';
 
@@ -7,18 +9,13 @@ import { AlertType } from 'Modules/alert/constants';
 
 import { PrettyService } from '../pretty';
 
-import { LOGGER_MODULE_OPTIONS, LoggerOptions } from './logger.options';
 import { AlertLogModel, StatsLogModel } from './models';
 
 @Injectable()
 export class LoggerService {
   private readonly logger: Logger;
 
-  constructor(
-    @Inject(LOGGER_MODULE_OPTIONS)
-    private readonly options: LoggerOptions,
-    private readonly prettyService: PrettyService
-  ) {
+  constructor(private readonly prettyService: PrettyService) {
     this.logger = createLogger({
       format: format.combine(
         format.simple(),
@@ -37,7 +34,7 @@ export class LoggerService {
   }
 
   public stats(stats: StatsLogModel) {
-    const title = `${stats.website} - ${stats.type} STATS`;
+    const title = `${new URL(stats.website).host} - ${stats.type} STATS`;
 
     const displayLabelMessage = `Displaying stats for ${
       stats.website
