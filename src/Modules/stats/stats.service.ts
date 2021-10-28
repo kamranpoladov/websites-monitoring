@@ -26,6 +26,8 @@ export class StatsService {
   ) {}
 
   public async monitor({ website, interval }: AddWebsiteDto) {
+    this.loggerService.info(`Hang tight, starting to monitor ${website}...`);
+
     const startStatsShortJob = () =>
       this.schedulerService.addJob({
         name: DISPLAY_STATS_SHORT_JOB_KEY,

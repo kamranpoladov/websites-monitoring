@@ -7,14 +7,14 @@ import { AddJobDto } from './dto';
 export class SchedulerService {
   constructor(private readonly schedulerRegistry: SchedulerRegistry) {}
 
-  public addJob({
+  public async addJob({
     name,
     period,
     job,
     callback,
     executeImmediately
   }: AddJobDto) {
-    this.executeAndScheduleJob({
+    await this.executeAndScheduleJob({
       name,
       job,
       period,

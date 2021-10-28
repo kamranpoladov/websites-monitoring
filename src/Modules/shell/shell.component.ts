@@ -41,17 +41,11 @@ export class ShellComponent extends NestShellComponent {
         `ts-node -P tsconfig.json -r tsconfig-paths/register src/main.ts monitor -w ${website} -i ${interval}`
       );
 
-      return `Monitoring ${website}!`;
+      return `\nMonitoring ${website}!\n`;
     } else {
       return this.prettyService
         .withTitle('Validation failed')
-        .withOptions({
-          textAlignment: 'center'
-        })
-        .withMessages(
-          errors.reduce((acc, curr) => acc + curr),
-          ''
-        )
+        .withMessages(...errors)
         .buildBox();
     }
   }
@@ -81,9 +75,9 @@ export class ShellComponent extends NestShellComponent {
   }
 
   @ShellCommandExit()
-  public async exit() {
-    return 'Bye';
+  public exit() {
+    console.log('Bye-bye!');
 
-    // return process.exit();
+    return process.exit();
   }
 }
