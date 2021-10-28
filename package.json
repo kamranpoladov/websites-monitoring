@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "start": "ts-node -P tsconfig.json -r tsconfig-paths/register src/main.ts shell",
-    "start:child": "ts-node -P tsconfig.json -r tsconfig-paths/register src/main.ts monitor",
+    "start:dev": "ts-node-dev -P tsconfig.json -r tsconfig-paths/register src/main.ts shell",
+    "start:manual": "ts-node -P tsconfig.json -r tsconfig-paths/register src/main.ts monitor",
     "test": "jest",
     "test:types": "tsc --project tsconfig.json",
     "test:lint": "eslint src/ --ext .ts --color",
@@ -30,10 +31,11 @@
     "nestjs-console": "^7.0.0",
     "nestjs-shell": "^1.4.1",
     "normalize-url": "^5.3.0",
-    "open-terminal": "git+https://github.com/kamranpoladov/open-terminal.git#production",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.4.0",
     "table": "^6.7.2",
+    "ts-node": "^10.4.0",
+    "tsconfig-paths": "^3.11.0",
     "typescript": "^4.4.4",
     "winston": "^3.3.3"
   },
@@ -50,9 +52,7 @@
     "jest": "^27.3.1",
     "prettier": "^2.4.1",
     "ts-jest": "^27.0.7",
-    "ts-node": "^10.3.0",
-    "ts-node-dev": "^1.1.8",
-    "tsconfig-paths": "^3.11.0"
+    "ts-node-dev": "^1.1.8"
   },
   "jest": {
     "moduleFileExtensions": [
