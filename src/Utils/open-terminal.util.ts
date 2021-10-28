@@ -15,7 +15,7 @@ export const openTerminal = (command: string) => {
     case 'darwin':
       try {
         execSync(
-          `osascript -e "tell app "Terminal" to do script "${command}""`,
+          `osascript -e 'tell app "Terminal" to do script "cd ${process.cwd()} && ${command}"'`,
           {
             stdio: 'ignore'
           }
