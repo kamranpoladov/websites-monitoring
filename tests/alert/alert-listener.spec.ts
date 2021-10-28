@@ -5,7 +5,12 @@ import { AlertService } from '../../src/Modules/alert/alert.service';
 import { RegisterResponseEvent } from '../../src/Modules/response/events';
 import { ResponseRepository } from '../../src/Modules/response/response.repository';
 import { ResponseService } from '../../src/Modules/response/response.service';
-import { AppConfigModule, HttpModule, LoggerModule } from '../../src/Providers';
+import {
+  AppConfigModule,
+  HttpModule,
+  LoggerModule,
+  PrettyModule
+} from '../../src/Providers';
 
 describe('AlertService Listener', () => {
   const website = 'example.com';
@@ -21,6 +26,7 @@ describe('AlertService Listener', () => {
         ConfigModule.forRoot({ isGlobal: true }),
         AppConfigModule,
         HttpModule,
+        PrettyModule,
         LoggerModule
       ],
       providers: [
