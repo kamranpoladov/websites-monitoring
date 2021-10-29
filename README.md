@@ -54,12 +54,17 @@ $ git clone https://github.com/kamranpoladov/websites-monitoring.git
 $ cd websites-monitoring
 ```
 
-2) Install the dependencies with **npm**:
+2) Copy `.env.dist` file into `.env` in the root of the project folder either manually or with command below:
+```
+$ cp .env.dist .env
+```
+
+3) Install the dependencies with **npm**:
 ```
 $ npm install
 ```
 
-3) Build the project:
+4) Build the project:
 ```
 $ npm run build
 ```
@@ -404,6 +409,61 @@ private getClosestResponseIndexToTime(time: Moment): number {
 }
 ```
 
+### Terminal window popup
+
+The application tries to open a new terminal instance and run Node.js script inside it whenever user adds a new website to be monitored. This operation is very OS-specific and terminal application-specific. Therefore, it is impossible to add support for all kinds of terminals on all operating systems (at least not with Node.js). The code below tries to create a synchronous child process which blocks the Node.js event loop so that terminal keeps running in the background (this doesn't mean that the entire program's execution stops)
+
+`src/Utils/open-terminal.util.ts`
+
+```
+export const openTerminal = (command: string) => {
+  switch (process.platform) {
+    // Linux distributions
+    case 'linux':
+      try {
+        execSync(`gnome-terminal -- ${command}`, { stdio: 'ignore' });
+      } catch (e) {
+        console.log(
+          'Sorry, your terminal application is currently not supported'
+        );
+        process.exit();
+      }
+      break;
+    // macOS
+    case 'darwin':
+      try {
+        execSync(
+          `osascript -e 'tell app "Terminal" to do script "cd ${process.cwd()} && ${command}"'`,
+          {
+            stdio: 'ignore'
+          }
+        );
+      } catch (e) {
+        console.log(
+          'Sorry, your terminal application is currently not supported'
+        );
+        process.exit();
+      }
+      break;
+    // Microsoft Windows
+    case 'win32':
+      try {
+        execSync(`start cmd.exe /K ${command}`, { stdio: 'ignore' });
+      } catch (e) {
+        console.log(
+          'Sorry, your terminal application is currently not supported'
+        );
+        process.exit();
+      }
+      break;
+    // Other operating systems are not supported
+    default:
+      console.log('Sorry, your operating system is currently not supported :(');
+      process.exit();
+  }
+};
+```
+
 ## Testing
 
 Unit tests are implemented to test alerting mechanism.
@@ -422,3 +482,7 @@ Unit tests are implemented to test alerting mechanism.
 - `npm run fix:prettier` - fix Prettier errors
 
 ## Further thoughts
+
+One of the potential improvements would be to add a fallback when user's terminal application is not supported. It is possible to write the stats for each website into a separate text file when application cannot open new terminal popup and let user tail them in console or end monitoring a given website by killing a child process dedicated to it
+
+Additionally, it might also be useful to have an option to monitor all the websites in a single terminal window. However, to avoid massive output with all the websites mixed up together, it is possible to allocate a "box" for each website's stats and alert messages. So, popup application will aggregate all the websites that user adds and display them one by one **rewriting** the stats for each of them every 10 seconds and every minute. The trickiest part of this approach is to keep track of the "position" of each website inside a terminal window in order to be able to rewrite stats periodically. Generally speaking, CLI application is not made for such usage, therefore, it is better to create a web application where it is way easier to manipulate the DOM.
