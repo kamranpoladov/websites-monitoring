@@ -1,29 +1,41 @@
 # Websites Monitoring CLI App
 
-An interactive shell that allows users to monitor websites' performance, gathering statistics 
+An interactive shell that allows users to monitor websites' performance, gathering statistics
 about average response time, maximum responses time, availability and HTTP status codes count.
 
 ## Table of contents
 
-* [Features](#features)
-* [Tech stack](#tech-stack)
-* [Installation](#installation)
-  * [Prerequisites](#prerequisites)
-  * [Setup](#setup)
-* [Usage](#usage)
-  * [Disclaimer](#disclaimer)
-  * [Primary way](#primary-way)
-  * [Examples](#examples)
-  * [Alternative way](#alternative-way)
-* [Interface](#interface)
-* [Code examples](#code-examples)
-  * [Periodic website fetching and statistics displaying](#periodic-website-fetching-and-statistics-displaying)
-  * [Alerting logic](#alerting-logic)
-  * [Optimization](#optimization)
-* [Testing](#testing)
-* [Further thoughts](#further-thoughts)
+- [Websites Monitoring CLI App](#websites-monitoring-cli-app)
+  - [Table of contents](#table-of-contents)
+  - [Features](#features)
+  - [Tech stack](#tech-stack)
+  - [Installation](#installation)
+    - [Prerequisites](#prerequisites)
+    - [Setup](#setup)
+  - [Usage](#usage)
+    - [Disclaimer](#disclaimer)
+    - [Primary way](#primary-way)
+      - [Available commands](#available-commands)
+    - [Examples](#examples)
+    - [Alternative way](#alternative-way)
+      - [Required options](#required-options)
+  - [Interface](#interface)
+    - [Statistics for past 10 minutes (displayed every 10 seconds)](#statistics-for-past-10-minutes-displayed-every-10-seconds)
+    - [Statistics for past hour (displayed every minute)](#statistics-for-past-hour-displayed-every-minute)
+    - [Alerting when website is down for the past 2 minutes (i.e. availability is below 80%)](#alerting-when-website-is-down-for-the-past-2-minutes-ie-availability-is-below-80)
+    - [Alerting when website recovered (i.e. availability is more than 80%)](#alerting-when-website-recovered-ie-availability-is-more-than-80)
+  - [Code examples](#code-examples)
+    - ["Any fool can write code that a computer can understand. Good programmers write code that humans can understand" - Martin Fowler](#any-fool-can-write-code-that-a-computer-can-understand-good-programmers-write-code-that-humans-can-understand---martin-fowler)
+    - [Periodic website fetching and statistics displaying](#periodic-website-fetching-and-statistics-displaying)
+    - [Alerting logic](#alerting-logic)
+    - [Optimization](#optimization)
+    - [Terminal window popup](#terminal-window-popup)
+  - [Testing](#testing)
+    - [Scripts](#scripts)
+  - [Further thoughts](#further-thoughts)
 
 ## Features
+
 - Monitor websites using an interactive shell
 - Observe the statistics for each website you add in a separate terminal popup window
 - Send GET requests to a website over custom defined frequency
@@ -31,40 +43,55 @@ about average response time, maximum responses time, availability and HTTP statu
 - Get alert messages when website is down and when it has recovered
 
 ## Tech stack
+
 - [TypeScript](https://www.typescriptlang.org/)
 - [Node.js](https://nodejs.org/)
-- [NestJS](https://nestjs.com/) *- progressive Node.js framework*
-- [Winston](https://github.com/winstonjs/winston) *- logger*
-- [Boxen](https://github.com/sindresorhus/boxen) *- console output formatting*
-- [Moment.js](https://momentjs.com/) *- working with time*
-- [Jest](https://jestjs.io/) *- unit testing*
-- [ESLint](https://eslint.org/) *- code analysis*
-- [Prettier](https://prettier.io/) *- code formatting*
+- [NestJS](https://nestjs.com/) _- progressive Node.js framework_
+- [Winston](https://github.com/winstonjs/winston) _- logger_
+- [Boxen](https://github.com/sindresorhus/boxen) _- console output formatting_
+- [Moment.js](https://momentjs.com/) _- working with time_
+- [Jest](https://jestjs.io/) _- unit testing_
+- [ESLint](https://eslint.org/) _- code analysis_
+- [Prettier](https://prettier.io/) _- code formatting_
 
 ## Installation
 
 ### Prerequisites
+
 - [Node.js](https://nodejs.org/en/) - version `16.13.0` is recommended, at least `12.22.7` is required
 - [Git](https://git-scm.com/) - not required if you download project as a zip file
 
 ### Setup
-1) Install the application with **Git**:
+
+1. Install the application with **Git**:
+
 ```
 $ git clone https://github.com/kamranpoladov/websites-monitoring.git
 $ cd websites-monitoring
 ```
 
-2) Copy `.env.dist` file into `.env` in the root of the project folder either manually or with command below:
+2. Copy `.env.dist` file into `.env` in the root of the project folder either manually or with command below:
+
+**Linux or macOS:**
+
 ```
 $ cp .env.dist .env
 ```
 
-3) Install the dependencies with **npm**:
+**Windows:**
+
+```
+$ copy .env.dist .env
+```
+
+3. Install the dependencies with **npm**:
+
 ```
 $ npm install
 ```
 
-4) Build the project:
+4. Build the project:
+
 ```
 $ npm run build
 ```
@@ -72,16 +99,19 @@ $ npm run build
 ## Usage
 
 ### Disclaimer
+
 The application will try to open a new terminal window for each website you are trying to monitor. Even though it supports 3 main operating systems (Microsoft Windows, macOS, Linux), it doesn't support all kinds of terminals
 
 **List of supported terminals:**
+
 - Linux: GNOME Terminal
 - macOS: default Terminal application
 - Windows: default Command Prompt application (cmd.exe)
 
-May you not have any of those installed, you still can run the application in [alternative way](#alternative-way) 
+May you not have any of those installed, you still can run the application in [alternative way](#alternative-way)
 
 ### Primary way
+
 ```
 $ npm start
 ```
@@ -91,6 +121,7 @@ An interactive shell will appear in your command line (wait to see `>` symbol)
 Start using this shell to monitor different websites
 
 #### Available commands
+
 - `monitor <website> <interval>` - adds a new website (has to be a valid URL, adding protocol is optional but recommended) to be monitored over a specified interval (number in seconds, minimum is 3)
 - `help` - lists all available commands
 - `exit` - exits the application (this will not close any of the windows displaying stats for the websites you have already added)
@@ -138,6 +169,7 @@ Bye-bye!
 ### Alternative way
 
 As mentioned, you still can use the application even if you don't have a supported terminal installed. This method will not automatically open a new terminal window for each website you are adding. Instead, you will have to use flags to monitor a website inside your current window. To add a new website, you will have to start the application again in another terminal instance
+
 ```
 $ npm run start:manual -- [options]
 ```
@@ -152,6 +184,7 @@ Note that `--` coming after `start:manual` is **very important**
 ## Interface
 
 ### Statistics for past 10 minutes (displayed every 10 seconds)
+
 ```
    ┏━━━━━━━━━━━━━━━━━━━━━ https://datadoghq.com - SHORT STATS ━━━━━━━━━━━━━━━━━━━━━━┓
    ┃                                                                                ┃
@@ -170,6 +203,7 @@ Note that `--` coming after `start:manual` is **very important**
 ```
 
 ### Statistics for past hour (displayed every minute)
+
 ```
    ┏━━━━━━━━━━━━━━━━━━━━━ https://datadoghq.com - LONG STATS ━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃                                                                                ┃
@@ -188,6 +222,7 @@ Note that `--` coming after `start:manual` is **very important**
 ```
 
 ### Alerting when website is down for the past 2 minutes (i.e. availability is below 80%)
+
 ```
 ┏━━━━━━━━━━━━━━━ ALERT DOWN ━━━━━━━━━━━━━━━━┓
 ┃                                           ┃
@@ -198,6 +233,7 @@ Note that `--` coming after `start:manual` is **very important**
 ```
 
 ### Alerting when website recovered (i.e. availability is more than 80%)
+
 ```
 ┏━━━━━━━━━━━━━━━ ALERT RECOVER ━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃                                                      ┃
@@ -206,7 +242,6 @@ Note that `--` coming after `start:manual` is **very important**
 ┃                                                      ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
-
 
 ## Code examples
 
@@ -250,7 +285,7 @@ private async executeAndScheduleJob({
 }
 ```
 
-`StatsService` consumes `SchedulerService` to set up periodic fetching of a website and logging of statistics for both *short* (every 10 seconds) and *long* (every minute) intervals. Note that the job for displaying for *short* stats starts only after the website has been fetched for the first time. This is done to handle the edge case of the very first request giving timeout error: if it takes a website too long to respond (i.e. longer than 10 seconds) for the first time, the statistics should not be displayed as we have no responses to analyze yet. Also, the displaying of *long* stats is delayed since for the first 10 minutes they are going to be the same as *short* stats 
+`StatsService` consumes `SchedulerService` to set up periodic fetching of a website and logging of statistics for both _short_ (every 10 seconds) and _long_ (every minute) intervals. Note that the job for displaying for _short_ stats starts only after the website has been fetched for the first time. This is done to handle the edge case of the very first request giving timeout error: if it takes a website too long to respond (i.e. longer than 10 seconds) for the first time, the statistics should not be displayed as we have no responses to analyze yet. Also, the displaying of _long_ stats is delayed since for the first 10 minutes they are going to be the same as _short_ stats
 
 `src/Modules/stats/stats.service.ts`
 
@@ -258,7 +293,7 @@ private async executeAndScheduleJob({
 public async monitor({ website, interval }: AddWebsiteDto) {
 
   ...
-  
+
   const startStatsShortJob = () =>
     this.schedulerService.addJob({
       name: DISPLAY_STATS_SHORT_JOB_KEY,
@@ -324,7 +359,7 @@ public async registerResponse(url: string): Promise<void> {
     RegisterResponseEvent.eventName,
     new RegisterResponseEvent(url)
   );
-  
+
   return response;
 }
 ```
@@ -366,7 +401,7 @@ public onRegisterResponse({ website }: RegisterResponseEvent): void {
 
 ### Optimization
 
-Fetched responses are being stored in-memory inside an array. To reduce the memory usage, cron job that runs every 30 minutes is implemented to delete the old responses from memory. A response is considered old if it was registered more than one hour ago (the time of displaying *long* statistics)
+Fetched responses are being stored in-memory inside an array. To reduce the memory usage, cron job that runs every 30 minutes is implemented to delete the old responses from memory. A response is considered old if it was registered more than one hour ago (the time of displaying _long_ statistics)
 
 `src/Modules/response/response.service.ts`
 
