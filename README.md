@@ -70,7 +70,7 @@ $ git clone https://github.com/kamranpoladov/websites-monitoring.git
 $ cd websites-monitoring
 ```
 
-2. Copy `.env.dist` file into `.env` in the root of the project folder either manually or with command below:
+2. Copy the contents of `.env.dist` file into `.env` file located in the root of the project directory either manually or with one of the commands below:
 
 **Linux or macOS:**
 
@@ -290,7 +290,7 @@ private async executeAndScheduleJob({
 `src/Modules/stats/stats.service.ts`
 
 ```
-public async monitor({ website, interval }: AddWebsiteDto) {
+public async monitor({ website, interval }: MonitorWebsitePlainDto) {
 
   ...
 
