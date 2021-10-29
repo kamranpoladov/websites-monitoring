@@ -7,13 +7,14 @@ import { Interval } from 'Models';
 import { ResponseService } from 'Modules/response/response.service';
 import { StatsLogModel } from 'Providers/logger/models';
 
+import { MonitorWebsiteDto } from '../shell/dto';
+
 import {
   DISPLAY_STATS_LONG_JOB_KEY,
   DISPLAY_STATS_SHORT_JOB_KEY,
   FETCH_JOB_KEY,
   StatsType
 } from './constants';
-import { AddWebsiteDto } from './dto';
 import { DisplayStatsModel, StatsModel } from './models';
 
 @Injectable()
@@ -25,7 +26,7 @@ export class StatsService {
     private readonly loggerService: LoggerService
   ) {}
 
-  public async monitor({ website, interval }: AddWebsiteDto) {
+  public async monitor({ website, interval }: MonitorWebsiteDto) {
     this.loggerService.info(
       `Please wait, it might take up to 30 seconds to see first stats for ${website}...`
     );

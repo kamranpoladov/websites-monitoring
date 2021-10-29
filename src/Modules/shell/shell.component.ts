@@ -24,15 +24,10 @@ export class ShellComponent extends NestShellComponent {
   }
 
   @ShellCommandMonitor()
-  public async monitor(
-    website: string,
-    interval: string,
-    save: string
-  ): Promise<string> {
+  public async monitor(website: string, interval: string): Promise<string> {
     const monitorWebsiteDto = plainToClass(MonitorWebsiteDto, {
       website,
-      interval,
-      save: !!save
+      interval
     });
     const errors = await this.validationService.validate(monitorWebsiteDto);
 

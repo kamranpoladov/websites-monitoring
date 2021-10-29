@@ -22,9 +22,6 @@ export class MonitorWebsiteDto {
   )
   public readonly interval!: Duration;
 
-  @Expose()
-  public readonly save!: boolean;
-
   constructor(obj: MonitorWebsiteDto) {
     Object.assign(this, obj);
   }

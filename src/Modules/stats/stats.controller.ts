@@ -1,32 +1,43 @@
 import { plainToClass } from 'class-transformer';
 import { Console } from 'nestjs-console';
 
-import { ValidationService } from 'Providers';
+import { LoggerService, PrettyService, ValidationService } from 'Providers';
+
+import { MonitorWebsiteDto } from '../shell/dto';
 
 import { Monitor } from './decorators';
-import { AddWebsiteDto, AddWebsiteDtoPlain } from './dto';
 import { StatsService } from './stats.service';
 
 @Console()
 export class StatsController {
   constructor(
     private readonly statsService: StatsService,
-    private readonly validationService: ValidationService
+    private readonly validationService: ValidationService,
+    private readonly loggerService: LoggerService,
+    private readonly prettyService: PrettyService
   ) {}
 
   @Monitor()
   public async monitor({
-    save,
     website,
     interval
-  }: AddWebsiteDtoPlain): Promise<void> {
-    const addWebsiteDto = plainToClass(AddWebsiteDto, {
+  }: MonitorWebsiteDto): Promise<void> {
+    const monitorWebsiteDto = plainToClass(MonitorWebsiteDto, {
       website,
-      interval,
-      save
+      interval
     });
-    await this.validationService.validate(addWebsiteDto);
+    const errors = await this.validationService.validate(monitorWebsiteDto);
 
-    return this.statsService.monitor(addWebsiteDto);
+    if (errors.length === 0) {
+      return this.statsService.monitor(monitorWebsiteDto);
+    } else {
+      this.loggerService.info(
+        this.prettyService
+          .withTitle('Validation failed')
+          .withMessages(...errors)
+          .buildBox()
+      );
+      process.exit();
+    }
   }
 }
