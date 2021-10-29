@@ -26,7 +26,9 @@ export class StatsService {
   ) {}
 
   public async monitor({ website, interval }: AddWebsiteDto) {
-    this.loggerService.info(`Hang tight, starting to monitor ${website}...`);
+    this.loggerService.info(
+      `Please wait, it might take up to 30 seconds to see first stats for ${website}...`
+    );
 
     const startStatsShortJob = () =>
       this.schedulerService.addJob({

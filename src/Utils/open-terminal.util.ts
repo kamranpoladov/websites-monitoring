@@ -2,6 +2,7 @@ import { execSync } from 'child_process';
 
 export const openTerminal = (command: string) => {
   switch (process.platform) {
+    // Linux distributions
     case 'linux':
       try {
         execSync(`gnome-terminal -- ${command}`, { stdio: 'ignore' });
@@ -12,6 +13,7 @@ export const openTerminal = (command: string) => {
         process.exit();
       }
       break;
+    // macOS
     case 'darwin':
       try {
         execSync(
@@ -27,6 +29,7 @@ export const openTerminal = (command: string) => {
         process.exit();
       }
       break;
+    // Microsoft Windows
     case 'win32':
       try {
         execSync(`start cmd.exe /K ${command}`, { stdio: 'ignore' });
@@ -37,6 +40,7 @@ export const openTerminal = (command: string) => {
         process.exit();
       }
       break;
+    // Other operating systems are not supported
     default:
       console.log('Sorry, your operating system is currently not supported :(');
       process.exit();
