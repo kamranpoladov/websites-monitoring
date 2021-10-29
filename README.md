@@ -201,7 +201,7 @@ Note that `--` coming after `start:manual` is **very important**
 ```
 ┏━━━━━━━━━━━━━━━ ALERT RECOVER ━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃                                                      ┃
-┃   Website http://localhost:3000 has recovered down   ┃
+┃   Website http://localhost:3000 has recovered        ┃
 ┃         Availability is 82% at 04:59:07 pm           ┃
 ┃                                                      ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
