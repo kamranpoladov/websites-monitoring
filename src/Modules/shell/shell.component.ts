@@ -74,7 +74,7 @@ export class ShellComponent extends NestShellComponent {
 
   @ShellCommandExit()
   public exit() {
-    console.log('Bye-bye!');
+    console.log('\nBye-bye!\n');
 
     return process.exit();
   }
