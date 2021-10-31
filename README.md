@@ -100,11 +100,26 @@ It is strongly recommended using the application in full-screen mode since the s
 $ npm start
 ```
 
-You can also alternatively start application in dev mode in order to skip `npm run build` stage every time code is changed using
+### Keeping track of validation errors
+
+In order to keep track of input validation errors, you can also run the following command in a separate window:
+
+```
+$ npm run start:errors
+```
+
+However, this is completely optional as all the validation errors are going to be saved in `errors.log` file which you can also review manually. Note that you should not run this script before starting the application with `npm start` though.
+
+### Starting the application in DEV mode
+
+You can also alternatively start application in dev mode in order to skip `npm run build` stage every time code is changed using `:dev` suffix:
 
 ```
 $ npm run start:dev
+$ npm run start:errors:dev
 ```
+
+### After starting the application
 
 An interactive shell will appear in your command line (wait to see `>` symbol)
 
@@ -424,7 +439,7 @@ Unit tests are implemented to test alerting mechanism.
 
 ## Further thoughts
 
-The application is refreshing data inside terminal window every time stats for any of the websites should update. Even though user input is being preserved between inputs, the outputs for invalid inputs will be cleared as soon as window is refreshed. This rather happens because of the nature of Node.js console.
+The application is refreshing data inside terminal window every time stats for any of the websites should update. Even though user input is being preserved between inputs, the outputs for invalid inputs will be cleared as soon as window is refreshed. This rather happens because of the nature of Node.js console. I solved this issue by giving an option of running additional script to keep track on errors in a separate terminal window `npm run start:errors` (more details [here](#keeping-track-of-validation-errors)). Therefore, all the validation errors are displayed in a separate window and stored in a `errors.log` file for as long as the program is running.
 
 Additionally, as mentioned in [interface](#interface) section, it is not recommended adding too many websites per single program instance (i.e. more than your terminal viewport can handle). Doing so may result into disturbed display of the statistics that is left outside your terminal viewport. Console is being cleared every time stats need to update for any of the websites and new, updated stats are being drawn, therefore, it is very inconvenient to scroll to the stats that are outside the viewport. Nevertheless, all of these stats are being preserved and user can easily see them by scrolling after shutting down the application.
 
