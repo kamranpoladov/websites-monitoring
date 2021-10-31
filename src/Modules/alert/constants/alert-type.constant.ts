@@ -1,4 +1,4 @@
 export enum AlertType {
-  Down,
-  Recover
+  Down = 'Down',
+  Recover = 'Recover'
 }

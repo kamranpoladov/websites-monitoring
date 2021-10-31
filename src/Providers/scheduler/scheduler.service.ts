@@ -11,9 +11,12 @@ export class SchedulerService {
     name,
     period,
     job,
-    callback,
-    executeImmediately
+    afterStart,
+    executeImmediately,
+    beforeStart
   }: AddJobDto) {
+    await beforeStart?.(); // execute beforeStart callback if it was provided
+
     await this.executeAndScheduleJob({
       name,
       job,
@@ -21,7 +24,7 @@ export class SchedulerService {
       executeImmediately
     });
 
-    callback?.(); // execute callback if it was provided
+    afterStart?.(); // execute afterStart callback if it was provided
   }
 
   private async executeAndScheduleJob({

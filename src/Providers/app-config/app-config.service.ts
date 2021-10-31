@@ -35,7 +35,7 @@ export class AppConfigService {
 
   get longDuration() {
     const [input, unit] = this.configService
-      .get('SHORT_DURATION')
+      .get('LONG_DURATION')
       .match(/(\d+)\s*(\w+)/)
       .slice(1);
 

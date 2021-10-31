@@ -4,6 +4,9 @@ import { Duration } from 'moment';
 
 export class HttpResponseModel {
   @Expose()
+  public website!: string;
+
+  @Expose()
   public time!: Duration;
 
   @Expose()

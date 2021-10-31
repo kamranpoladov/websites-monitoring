@@ -6,10 +6,12 @@ import { AlertService } from '../../src/Modules/alert/alert.service';
 import { AlertType } from '../../src/Modules/alert/constants';
 import { ResponseModule } from '../../src/Modules/response';
 import { ResponseService } from '../../src/Modules/response/response.service';
+import { StatsRepository } from '../../src/Modules/stats/stats.repository';
 import {
   AppConfigModule,
   HttpModule,
-  LoggerService
+  LoggerModule,
+  PrettyModule
 } from '../../src/Providers';
 
 describe('AlertService Logic', () => {
@@ -17,8 +19,8 @@ describe('AlertService Logic', () => {
 
   let alertService: AlertService;
   let alertRepository: AlertRepository;
-  let loggerService: LoggerService;
   let responseService: ResponseService;
+  let statsRepository: StatsRepository;
 
   let getAvailabilitySpy: jest.SpyInstance;
   let getIsDownSpy: jest.SpyInstance;
@@ -30,21 +32,23 @@ describe('AlertService Logic', () => {
         ConfigModule.forRoot({ isGlobal: true }),
         AppConfigModule,
         HttpModule,
-        ResponseModule
+        ResponseModule,
+        LoggerModule,
+        PrettyModule
       ],
       providers: [
         AlertService,
-        {
-          provide: LoggerService,
-          useValue: {
-            alert: jest.fn()
-          }
-        },
         {
           provide: AlertRepository,
           useValue: {
             getIsDown: jest.fn(),
             setIsDown: jest.fn()
+          }
+        },
+        {
+          provide: StatsRepository,
+          useValue: {
+            addAlertForWebsite: jest.fn()
           }
         }
       ]
@@ -52,8 +56,8 @@ describe('AlertService Logic', () => {
 
     alertService = module.get(AlertService);
     alertRepository = module.get(AlertRepository);
-    loggerService = module.get(LoggerService);
     responseService = module.get(ResponseService);
+    statsRepository = module.get(StatsRepository);
 
     getAvailabilitySpy = jest.spyOn(responseService, 'getAvailability');
     getIsDownSpy = jest.spyOn(alertRepository, 'getIsDown');
@@ -72,25 +76,20 @@ describe('AlertService Logic', () => {
       getAvailabilitySpy.mockReturnValue(79);
     });
 
-    // beforeEach(() => {
-    //   alertService.onRegisterResponse({ website });
-    // });
-
     describe('and when website is not currently down', () => {
       beforeAll(() => {
         getIsDownSpy.mockReturnValue(false);
       });
 
       it('then should trigger alert', () => {
-        expect(loggerService.alert).toBeCalled();
+        expect(statsRepository.addAlertForWebsite).toBeCalled();
       });
 
       it('then should trigger alert with "Down" payload', () => {
-        expect(loggerService.alert).toBeCalledWith({
+        expect(statsRepository.addAlertForWebsite).toBeCalledWith(website, {
+          time: expect.anything(),
           availability: 79,
-          website,
-          type: AlertType.Down,
-          time: expect.anything()
+          type: AlertType.Down
         });
       });
     });
@@ -101,7 +100,7 @@ describe('AlertService Logic', () => {
       });
 
       it('then should not trigger alert', () => {
-        expect(loggerService.alert).not.toBeCalled();
+        expect(statsRepository.addAlertForWebsite).not.toBeCalled();
       });
     });
   });
@@ -111,23 +110,18 @@ describe('AlertService Logic', () => {
       getAvailabilitySpy.mockReturnValue(80);
     });
 
-    // beforeEach(() => {
-    //   alertService.onRegisterResponse({ website });
-    // });
-
     describe('and when website is currently down', () => {
       beforeAll(() => {
         getIsDownSpy.mockReturnValue(true);
       });
 
       it('then should trigger alert', () => {
-        expect(loggerService.alert).toBeCalled();
+        expect(statsRepository.addAlertForWebsite).toBeCalled();
       });
 
       it('then should trigger alert with "Recover" payload', () => {
-        expect(loggerService.alert).toBeCalledWith({
+        expect(statsRepository.addAlertForWebsite).toBeCalledWith(website, {
           availability: 80,
-          website,
           type: AlertType.Recover,
           time: expect.anything()
         });
@@ -140,7 +134,7 @@ describe('AlertService Logic', () => {
       });
 
       it('then should not trigger alert', () => {
-        expect(loggerService.alert).not.toBeCalled();
+        expect(statsRepository.addAlertForWebsite).not.toBeCalled();
       });
     });
   });

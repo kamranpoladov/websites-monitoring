@@ -1,23 +1,36 @@
 import { HttpStatus } from '@nestjs/common';
-import { Expose, Type } from 'class-transformer';
 import { Duration } from 'moment';
 
 import { Interval } from 'Models';
 
+import { AlertModel } from '../../alert/models';
+
 export class StatsModel {
-  @Expose()
   public availability!: number;
 
-  @Expose()
   public averageResponseTime!: Duration;
 
-  @Expose()
   public maxResponseTime!: Duration;
 
-  @Expose()
   public httpStatusCount!: Map<HttpStatus, number>;
 
-  @Expose()
-  @Type(() => Interval)
   public interval!: Interval;
+
+  constructor(obj?: StatsModel) {
+    Object.assign(this, obj);
+  }
+}
+
+export class WebsiteStatsModel {
+  public website!: string;
+
+  public short!: StatsModel;
+
+  public long!: StatsModel;
+
+  public alerts!: AlertModel[];
+}
+
+export class StatsListModel {
+  public rows!: WebsiteStatsModel[];
 }

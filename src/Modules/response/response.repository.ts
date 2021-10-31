@@ -13,7 +13,16 @@ export class ResponseRepository {
     this.responses.push(response);
   }
 
-  public getResponsesForInterval(interval: Interval): ResponseModel[] {
+  public getResponsesForWebsitePerInterval(
+    website: string,
+    interval: Interval
+  ): ResponseModel[] {
+    return this.getResponsesForInterval(interval).filter(
+      response => response.website === website
+    );
+  }
+
+  private getResponsesForInterval(interval: Interval): ResponseModel[] {
     const startIndex = this.getClosestResponseIndexToTime(interval.start);
     const endIndex = this.getClosestResponseIndexToTime(interval.end);
 

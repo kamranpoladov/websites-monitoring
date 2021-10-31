@@ -3,12 +3,14 @@ import { ScheduleModule } from '@nestjs/schedule';
 
 import { ResponseModule } from 'Modules/response';
 
-import { StatsController } from './stats.controller';
+import { ShellModule } from '../shell';
+
+import { StatsRepository } from './stats.repository';
 import { StatsService } from './stats.service';
 
 @Module({
-  imports: [ScheduleModule.forRoot(), ResponseModule],
-  providers: [StatsController, StatsService],
-  exports: [StatsService]
+  imports: [ScheduleModule.forRoot(), ResponseModule, ShellModule],
+  providers: [StatsService, StatsRepository],
+  exports: [StatsService, StatsRepository]
 })
 export class StatsModule {}

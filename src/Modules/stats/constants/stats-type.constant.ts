@@ -1,4 +1,4 @@
 export enum StatsType {
-  Short = 'SHORT',
-  Long = 'LONG'
+  Short = 'Short',
+  Long = 'Long'
 }

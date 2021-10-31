@@ -65,7 +65,7 @@ describe('AlertService Listener', () => {
     let onRegisterResponseSpy: jest.SpyInstance;
 
     beforeEach(async () => {
-      emitSpy = jest.spyOn(eventEmitter, 'emit');
+      emitSpy = jest.spyOn(eventEmitter, 'emitAsync');
       onRegisterResponseSpy = jest.spyOn(alertService, 'onRegisterResponse');
 
       await responseService.registerResponse(website);

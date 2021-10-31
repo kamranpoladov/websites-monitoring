@@ -15,6 +15,8 @@ export class HttpService {
     const response = new HttpResponseModel();
     const start = moment();
 
+    response.website = url;
+
     try {
       const { status: code } = await lastValueFrom(
         this.httpService.get(url, { timeout: TIMEOUT })

@@ -1,13 +1,16 @@
 export class AlertRepository {
-  constructor(private isDown: boolean) {
-    this.isDown = false;
+  constructor(private websitesDownMap: Map<string, boolean>) {
+    this.websitesDownMap = new Map();
   }
 
-  public getIsDown() {
-    return this.isDown;
+  public getIsDown(website: string) {
+    if (!this.websitesDownMap.has(website)) {
+      this.websitesDownMap.set(website, false);
+    }
+    return this.websitesDownMap.get(website) as boolean;
   }
 
-  public setIsDown(isDown: boolean) {
-    this.isDown = isDown;
+  public setIsDown(website: string, isDown: boolean) {
+    this.websitesDownMap.set(website, isDown);
   }
 }

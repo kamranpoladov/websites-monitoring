@@ -1,21 +1,19 @@
-import { URL } from 'url';
-
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { TableUserConfig, table } from 'table';
 import { Logger, createLogger, format, transports } from 'winston';
-import { table } from 'table';
 
 import { TIME_FORMAT } from 'Constants';
 import { AlertType } from 'Modules/alert/constants';
 
-import { PrettyService } from '../pretty';
-
-import { AlertLogModel, StatsLogModel } from './models';
+import { AlertModel } from '../../Modules/alert/models';
+import { StatsType } from '../../Modules/stats/constants';
+import { StatsListModel, StatsModel } from '../../Modules/stats/models';
 
 @Injectable()
 export class LoggerService {
   private readonly logger: Logger;
 
-  constructor(private readonly prettyService: PrettyService) {
+  constructor() {
     this.logger = createLogger({
       format: format.combine(
         format.simple(),
@@ -33,60 +31,96 @@ export class LoggerService {
     this.logger.error(message);
   }
 
-  public stats(stats: StatsLogModel) {
-    const title = `${new URL(stats.website).host} - ${stats.type} STATS`;
+  public stats(stats: StatsListModel) {
+    const config: TableUserConfig = {
+      header: {
+        alignment: 'center',
+        content: 'STATS FOR ALL WEBSITES'
+      }
+    };
+    const data = [
+      [
+        'Website',
+        'Period',
+        'From',
+        'To',
+        'Availability',
+        'Average response time',
+        'Max response time',
+        'Http status count',
+        'Alerts'
+      ]
+    ];
 
-    const displayLabelMessage = `Displaying stats for ${
-      stats.website
-    } ${stats.interval.format()}`;
-    const averageMessage = `Average response time: ${stats.averageResponseTime.asMilliseconds()} ms`;
-    const maximumMessage = `Maximum response time: ${stats.maxResponseTime.asMilliseconds()} ms`;
-    const availabilityMessage = `Availability: ${stats.availability}%`;
+    stats.rows.forEach(row => {
+      if (row.short.availability !== undefined) {
+        const dataPoint = this.generateStatsDataPoint(
+          row.website,
+          StatsType.Short,
+          row.short,
+          row.alerts
+        );
+        data.push(dataPoint);
+      }
 
-    const httpStatusCountSorted = new Map(
-      [...stats.httpStatusCount.entries()].sort(([a], [b]) => a - b)
-    );
+      if (row.long.availability !== undefined) {
+        const datapoint = this.generateStatsDataPoint(
+          row.website,
+          StatsType.Long,
+          row.long
+        );
+        data.push(datapoint);
+      }
+    });
 
-    const data = Array.from(httpStatusCountSorted.entries());
-
-    const statusCodesTable = table([['Status', 'Frequency'], ...data]);
-
-    const prettyMessage = this.prettyService
-      .withTitle(title)
-      .withMessages(
-        displayLabelMessage,
-        averageMessage,
-        maximumMessage,
-        availabilityMessage,
-        statusCodesTable
-      )
-      .buildBox();
-
-    this.info(prettyMessage);
+    this.info(table(data, config));
   }
 
-  public alert(alertLog: AlertLogModel) {
-    const alertTitle =
-      alertLog.type === AlertType.Down ? 'ALERT DOWN' : 'ALERT RECOVER';
-    this.prettyService.withTitle(alertTitle);
-    const availabilityMessage = `Availability is ${
-      alertLog.availability
-    }% at ${alertLog.time.format(TIME_FORMAT)}`;
+  private generateStatsDataPoint(
+    website: string,
+    type: StatsType,
+    stats: StatsModel,
+    alerts: AlertModel[] = []
+  ) {
+    const dataPoint = [];
+    type === StatsType.Short ? dataPoint.push(website) : dataPoint.push('');
+    dataPoint.push(type);
+    dataPoint.push(stats.interval.start.format(TIME_FORMAT));
+    dataPoint.push(stats.interval.end.format(TIME_FORMAT));
+    dataPoint.push(`${stats.availability}%`);
+    dataPoint.push(`${stats.averageResponseTime.asMilliseconds()} ms`);
+    dataPoint.push(`${stats.maxResponseTime.asMilliseconds()} ms`);
 
-    if (alertLog.type === AlertType.Down) {
-      const infoMessage = `Website ${alertLog.website} is down`;
+    const httpStatsCountMessage = this.constructHttpStatsCountMessage(
+      stats.httpStatusCount
+    );
 
-      const prettyMessage = this.prettyService
-        .withMessages(infoMessage, availabilityMessage)
-        .buildBox();
-      this.info(prettyMessage);
-    } else {
-      const infoMessage = `Website ${alertLog.website} has recovered`;
+    dataPoint.push(httpStatsCountMessage);
 
-      const prettyMessage = this.prettyService
-        .withMessages(infoMessage, availabilityMessage)
-        .buildBox();
-      this.info(prettyMessage);
-    }
+    const alertMessages = alerts.map(alert =>
+      this.constructAlertMessage(alert)
+    );
+    dataPoint.push(alertMessages.join('\n'));
+
+    return dataPoint;
+  }
+
+  private constructHttpStatsCountMessage(
+    httpStatusCount: Map<HttpStatus, number>
+  ): string {
+    return Array.from(httpStatusCount.entries())
+      .sort(([statusCode1], [statusCode2]) => statusCode1 - statusCode2)
+      .map(([status, count]) => `${status} => ${count}`)
+      .join('\n');
+  }
+
+  private constructAlertMessage(alert: AlertModel): string {
+    return alert.type === AlertType.Down
+      ? `Went down with availability ${
+          alert.availability
+        }% at ${alert.time.format(TIME_FORMAT)}`
+      : `Recovered with availability ${
+          alert.availability
+        }% at ${alert.time.format(TIME_FORMAT)}`;
   }
 }

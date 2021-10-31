@@ -30,7 +30,7 @@ export class ResponseService {
     this.responseRepository.addResponse(response);
 
     // notify AlertService about new registered response
-    this.eventEmitter.emit(
+    await this.eventEmitter.emitAsync(
       RegisterResponseEvent.eventName,
       new RegisterResponseEvent(url)
     );
@@ -46,8 +46,11 @@ export class ResponseService {
     this.responseRepository.clearBeforeTime(time);
   }
 
-  public getAvailability(interval: Interval): number {
-    const responses = this.responseRepository.getResponsesForInterval(interval);
+  public getAvailability(website: string, interval: Interval): number {
+    const responses = this.responseRepository.getResponsesForWebsitePerInterval(
+      website,
+      interval
+    );
 
     const { percent } = responses.reduce(
       ({ available, total }, { code }) => ({
@@ -69,8 +72,14 @@ export class ResponseService {
     return percent;
   }
 
-  public getResponseTimes(interval: Interval): ResponseTimesModel {
-    const responses = this.responseRepository.getResponsesForInterval(interval);
+  public getResponseTimes(
+    website: string,
+    interval: Interval
+  ): ResponseTimesModel {
+    const responses = this.responseRepository.getResponsesForWebsitePerInterval(
+      website,
+      interval
+    );
     const { sum, max } = responses.reduce(
       ({ max, sum }, { time }) => ({
         sum: sum.add(time),
@@ -80,15 +89,21 @@ export class ResponseService {
     );
 
     const average = duration(
-      Math.floor(sum.asMilliseconds() / responses.length),
+      Math.floor(sum.asMilliseconds() / responses.length) || 0,
       'ms'
     );
 
     return plainToClass(ResponseTimesModel, { average, max });
   }
 
-  public getResponseCodesCount(interval: Interval): Map<HttpStatus, number> {
-    const responses = this.responseRepository.getResponsesForInterval(interval);
+  public getResponseCodesCount(
+    website: string,
+    interval: Interval
+  ): Map<HttpStatus, number> {
+    const responses = this.responseRepository.getResponsesForWebsitePerInterval(
+      website,
+      interval
+    );
 
     return responses.reduce(
       (acc, { code }) =>
@@ -97,11 +112,16 @@ export class ResponseService {
     );
   }
 
-  public getAdjustedInterval(interval: Interval): Interval {
+  // Adjusts the interval when responses don't cover a given interval completely
+  public getAdjustedInterval(website: string, interval: Interval): Interval {
     const [response] =
-      this.responseRepository.getResponsesForInterval(interval);
+      this.responseRepository.getResponsesForWebsitePerInterval(
+        website,
+        interval
+      );
 
-    if (response.registeredAt > interval.start) {
+    // make sure that there is at least one registered response on the interval
+    if (response && response.registeredAt > interval.start) {
       return new Interval({
         start: response.registeredAt,
         end: interval.end

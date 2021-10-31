@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import moment from 'moment';
-import { plainToClass } from 'class-transformer';
+import { OnEvent } from '@nestjs/event-emitter';
+import moment, { Duration } from 'moment';
 
-import { AppConfigService, LoggerService, SchedulerService } from 'Providers';
 import { Interval } from 'Models';
 import { ResponseService } from 'Modules/response/response.service';
-import { StatsLogModel } from 'Providers/logger/models';
+import { AppConfigService, LoggerService, SchedulerService } from 'Providers';
 
-import { MonitorWebsiteDto } from '../shell/dto';
+import { MonitorWebsiteEvent } from '../shell/events';
+import { ShellService } from '../shell/shell.service';
 
 import {
   DISPLAY_STATS_LONG_JOB_KEY,
@@ -16,6 +16,7 @@ import {
   StatsType
 } from './constants';
 import { DisplayStatsModel, StatsModel } from './models';
+import { StatsRepository } from './stats.repository';
 
 @Injectable()
 export class StatsService {
@@ -23,72 +24,96 @@ export class StatsService {
     private readonly schedulerService: SchedulerService,
     private readonly responseService: ResponseService,
     private readonly appConfigService: AppConfigService,
-    private readonly loggerService: LoggerService
+    private readonly loggerService: LoggerService,
+    private readonly statsRepository: StatsRepository,
+    private readonly shellService: ShellService
   ) {}
 
-  public async monitor({ website, interval }: MonitorWebsiteDto) {
-    this.loggerService.info(
-      `Please wait, it might take up to 30 seconds to see first stats for ${website}...`
-    );
-
+  @OnEvent(MonitorWebsiteEvent.eventName)
+  public async monitor({ website, interval }: MonitorWebsiteEvent) {
     const startStatsShortJob = () =>
       this.schedulerService.addJob({
-        name: DISPLAY_STATS_SHORT_JOB_KEY,
+        name: `${website}#${DISPLAY_STATS_SHORT_JOB_KEY}`,
         period: this.appConfigService.shortInterval,
         job: async () =>
-          this.displayStats({
+          this.updateStats(
             website,
-            duration: this.appConfigService.shortDuration,
-            statsType: StatsType.Short
-          })
+            this.appConfigService.shortDuration,
+            StatsType.Short
+          ),
+        executeImmediately: true
       });
 
     const startStatsLongJob = () =>
       this.schedulerService.addJob({
-        name: DISPLAY_STATS_LONG_JOB_KEY,
+        name: `${website}#${DISPLAY_STATS_LONG_JOB_KEY}`,
         period: this.appConfigService.longInterval,
         job: async () =>
-          this.displayStats({
+          this.updateStats(
             website,
-            duration: this.appConfigService.longDuration,
-            statsType: StatsType.Long
-          }),
+            this.appConfigService.longDuration,
+            StatsType.Long
+          ),
         executeImmediately: true
       });
 
     await this.schedulerService.addJob({
-      name: FETCH_JOB_KEY,
+      name: `${website}#${FETCH_JOB_KEY}`,
       period: interval,
       job: () => this.fetchWebsite(website),
-      callback: async () => {
+      afterStart: async () => {
         startStatsShortJob();
         setTimeout(
           () => startStatsLongJob(),
           this.appConfigService.shortDuration.asMilliseconds()
         );
       },
+      beforeStart: async () =>
+        this.statsRepository.initializeEmptyStats(website), // create new stats instance before fetching every website
       executeImmediately: true
     });
+  }
+
+  private updateStats(
+    website: string,
+    duration: Duration,
+    statsType: StatsType
+  ) {
+    console.clear();
+    this.displayStats({
+      website,
+      duration,
+      statsType
+    });
+    this.shellService.show();
   }
 
   private fetchWebsite(website: string) {
     return this.responseService.registerResponse(website);
   }
 
-  private calculateStats(interval: Interval): StatsModel {
-    const availability = this.responseService.getAvailability(interval);
+  private calculateStats(website: string, interval: Interval): StatsModel {
+    const availability = this.responseService.getAvailability(
+      website,
+      interval
+    );
     const { average: averageResponseTime, max: maxResponseTime } =
-      this.responseService.getResponseTimes(interval);
-    const httpStatusCount =
-      this.responseService.getResponseCodesCount(interval);
-    const adjustedInterval = this.responseService.getAdjustedInterval(interval);
+      this.responseService.getResponseTimes(website, interval);
+    const httpStatusCount = this.responseService.getResponseCodesCount(
+      website,
+      interval
+    );
+    const adjustedInterval = this.responseService.getAdjustedInterval(
+      website,
+      interval
+    );
 
-    return plainToClass(StatsModel, {
+    return new StatsModel({
       availability,
       averageResponseTime,
       maxResponseTime,
       httpStatusCount,
-      interval: adjustedInterval.plain
+      interval: adjustedInterval
     });
   }
 
@@ -98,16 +123,12 @@ export class StatsService {
       end: moment()
     });
 
-    const { interval: adjustedInterval, ...rest } =
-      this.calculateStats(interval);
+    const stats = this.calculateStats(website, interval);
 
-    const statsLog = plainToClass(StatsLogModel, {
-      ...rest,
-      interval: adjustedInterval.plain,
-      website,
-      type: statsType
-    });
+    this.statsRepository.updateStatsForWebsite(website, stats, statsType);
 
-    this.loggerService.stats(statsLog);
+    const statsList = this.statsRepository.getStatsList();
+
+    this.loggerService.stats(statsList);
   }
 }

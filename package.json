@@ -7,8 +7,10 @@
   "scripts": {
     "build": "nest build",
     "start": "node build/main.js shell",
+    "start:dev": "ts-node -P tsconfig.json -r tsconfig-paths/register src/main.ts shell",
     "start:manual": "node build/main.js monitor",
     "test": "jest",
+    "test:types": "tsc --project tsconfig.json --noEmit",
     "test:lint": "eslint src/ --ext .ts --color",
     "test:prettier": "prettier --check \"./src/**/*.{json,ts}\"",
     "fix:lint": "eslint src/ --ext .ts --color --fix",
@@ -29,7 +31,6 @@
     "commander": "^8.1.0",
     "moment": "^2.29.1",
     "nestjs-console": "^7.0.0",
-    "nestjs-shell": "^1.4.1",
     "normalize-url": "^5.3.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.4.0",
@@ -37,6 +38,7 @@
     "ts-node": "^10.4.0",
     "tsconfig-paths": "^3.11.0",
     "typescript": "^4.4.4",
+    "vorpal": "^1.12.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {
@@ -44,6 +46,7 @@
     "@types/cron": "^1.7.3",
     "@types/jest": "^27.0.2",
     "@types/node": "^16.11.1",
+    "@types/vorpal": "^1.12.2",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
     "eslint": "^8.0.1",
@@ -69,9 +72,7 @@
     "moduleDirectories": [
       "node_modules",
       "src"
-    ]
-  },
-  "engines": {
-    "node": ">=12.x"
+    ],
+    "verbose": true
   }
 }
