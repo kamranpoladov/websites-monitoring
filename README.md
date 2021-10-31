@@ -13,27 +13,20 @@ about average response time, maximum responses time, availability and HTTP statu
     - [Prerequisites](#prerequisites)
     - [Setup](#setup)
   - [Usage](#usage)
-    - [Disclaimer](#disclaimer)
-    - [Primary way](#primary-way)
+    - [Starting the application](#starting-the-application)
     - [Examples](#examples)
-    - [Alternative way](#alternative-way)
   - [Interface](#interface)
-    - [Statistics for past 10 minutes (displayed every 10 seconds)](#statistics-for-past-10-minutes-displayed-every-10-seconds)
-    - [Statistics for past hour (displayed every minute)](#statistics-for-past-hour-displayed-every-minute)
-    - [Alerting when website is down for the past 2 minutes (i.e. availability is below 80%)](#alerting-when-website-is-down-for-the-past-2-minutes-ie-availability-is-below-80)
-    - [Alerting when website recovered (i.e. availability is more than 80%)](#alerting-when-website-recovered-ie-availability-is-more-than-80)
   - [Code examples](#code-examples)
     - [Periodic website fetching and statistics displaying](#periodic-website-fetching-and-statistics-displaying)
     - [Alerting logic](#alerting-logic)
     - [Optimization](#optimization)
-    - [Terminal window popup](#terminal-window-popup)
   - [Testing](#testing)
   - [Further thoughts](#further-thoughts)
 
 ## Features
 
 - Monitor websites using an interactive shell
-- Observe the statistics for each website you add in a separate terminal popup window
+- Observe the statistics for all the websites you add in a single updating terminal window
 - Send GET requests to a website over custom defined frequency
 - Obtain useful statistics such as average response time, maximum responses time, availability of a given website and HTTP status codes count
 - Get alert messages when website is down and when it has recovered
@@ -43,8 +36,9 @@ about average response time, maximum responses time, availability and HTTP statu
 - [TypeScript](https://www.typescriptlang.org/)
 - [Node.js](https://nodejs.org/)
 - [NestJS](https://nestjs.com/) _- progressive Node.js framework_
+- [Vorpal](https://vorpal.js.org/) _- uninterrupted user input_
 - [Winston](https://github.com/winstonjs/winston) _- logger_
-- [Boxen](https://github.com/sindresorhus/boxen) _- console output formatting_
+- [Boxen](https://github.com/sindresorhus/boxen) & [Table](https://github.com/gajus/table) _- console output formatting_
 - [Moment.js](https://momentjs.com/) _- working with time_
 - [Jest](https://jestjs.io/) _- unit testing_
 - [ESLint](https://eslint.org/) _- code analysis_
@@ -80,6 +74,8 @@ $ cp .env.dist .env
 $ copy .env.dist .env
 ```
 
+Feel free to adjust the configurations inside `.env` to change intervals, durations, etc.
+
 3. Install the dependencies with **npm**:
 
 ```
@@ -96,20 +92,18 @@ $ npm run build
 
 ### Disclaimer
 
-The application will try to open a new terminal window for each website you are trying to monitor. Even though it supports 3 main operating systems (Microsoft Windows, macOS, Linux), it doesn't support all kinds of terminals
+It is strongly recommended using the application in full-screen mode since the statistics for all the websites added are displayed in a single window. Because of the non-responsive nature of terminal, changing the width and height parameters may lead to disturbed output.
 
-**List of supported terminals:**
-
-- Linux: GNOME Terminal
-- macOS: default Terminal application
-- Windows: default Command Prompt application (cmd.exe)
-
-May you not have any of those installed, you still can run the application in [alternative way](#alternative-way)
-
-### Primary way
+### Starting the application
 
 ```
 $ npm start
+```
+
+You can also alternatively start application in dev mode in order to skip `npm run build` stage every time code is changed using
+
+```
+$ npm run start:dev
 ```
 
 An interactive shell will appear in your command line (wait to see `>` symbol)
@@ -118,7 +112,7 @@ Start using this shell to monitor different websites
 
 #### Available commands
 
-- `monitor <website> <interval>` - adds a new website (has to be a valid URL, adding protocol is optional but recommended) to be monitored over a specified interval (number in seconds, minimum is 3)
+- `monitor <website> <interval>` - adds a new website (has to be a valid, unique in the scope of application URL, adding protocol is optional but recommended) to be monitored over a specified interval (number in seconds, minimum is 3)
 - `help` - lists all available commands
 - `exit` - exits the application (this will not close any of the windows displaying stats for the websites you have already added)
 
@@ -127,8 +121,6 @@ Start using this shell to monitor different websites
 ```
 $ npm start
 > monitor datadoghq.com 5
-
-Monitoring datadoghq.com!
 
 > monitor invalid_website 6
 
@@ -145,98 +137,54 @@ Monitoring datadoghq.com!
    ┃   Interval has to be a positive number greater than or equal to 3   ┃
    ┃                                                                     ┃
    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-> monitor wrongusage
-Wrong usage: monitor <website> <interval>
-> help
-
-   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Available commands ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃                                                                                        ┃
-   ┃   monitor <website> <interval> - Starts monitoring a website with specified interval   ┃
-   ┃   help  - Displays all commands with description and usage                             ┃
-   ┃   exit  - Exits a program                                                              ┃
-   ┃                                                                                        ┃
-   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-> exit
-Bye-bye!
 ```
-
-### Alternative way
-
-As mentioned, you still can use the application even if you don't have a supported terminal installed. This method will not automatically open a new terminal window for each website you are adding. Instead, you will have to use flags to monitor a website inside your current window. To add a new website, you will have to start the application again in another terminal instance
-
-```
-$ npm run start:manual -- [options]
-```
-
-Note that `--` coming after `start:manual` is **very important**
-
-#### Required options
-
-- `-w --website <website>` - define the website to be monitored. Has to be a valid URL, protocol is not required
-- `-i --interval <interval>` - define the period (in seconds) of monitoring a website. Minimum 3 seconds
 
 ## Interface
 
-### Statistics for past 10 minutes (displayed every 10 seconds)
+Interface represents a table with all the websites added during program uptime. Stats are updated automatically as program is running. You can add more websites to be monitored using the commands above while viewing this table. However, please note that the height of this table is limited to the size of your terminal window. Therefore, it is not recommended adding too many websites in a single instance of program (more details on "why" in [further thoughts](#further-thoughts))
 
-```
-   ┏━━━━━━━━━━━━━━━━━━━━━ https://datadoghq.com - SHORT STATS ━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃                                                                                ┃
-   ┃   Displaying stats for https://datadoghq.com from 04:20:29 pm to 04:30:29 pm   ┃
-   ┃                         Average response time: 351 ms                          ┃
-   ┃                         Maximum response time: 534 ms                          ┃
-   ┃                              Availability: 100%                                ┃
-   ┃                            ╔════════╤═══════════╗                              ┃
-   ┃                            ║ Status │ Frequency ║                              ┃
-   ┃                            ╟────────┼───────────╢                              ┃
-   ┃                            ║ 200    │ 114       ║                              ┃
-   ┃                            ╚════════╧═══════════╝                              ┃
-   ┃                                                                                ┃
-   ┃                                                                                ┃
-   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-```
+```                                             
+╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                   STATS FOR ALL WEBSITES                                                                                   ║
+╟───────────────────────┬────────┬─────────────┬─────────────┬──────────────┬───────────────────────┬───────────────────┬───────────────────┬────────────────────────────────────────────────╢
+║ Website               │ Period │ From        │ To          │ Availability │ Average response time │ Max response time │ Http status count │ Alerts                                         ║
+╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
+║ http://google.com     │ Short  │ 06:25:48 pm │ 06:35:47 pm │ 100%         │ 205 ms                │ 635 ms            │ 200 => 120        │                                                ║
+╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
+║                       │ Long   │ 05:45:17 pm │ 06:35:17 pm │ 100%         │ 207 ms                │ 1227 ms           │ 200 => 600        │                                                ║
+╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
+║ http://facebook.com   │ Short  │ 06:25:44 pm │ 06:35:41 pm │ 100%         │ 687 ms                │ 1641 ms           │ 200 => 150        │                                                ║
+╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
+║                       │ Long   │ 05:45:31 pm │ 06:35:31 pm │ 100%         │ 695 ms                │ 2763 ms           │ 200 => 750        │                                                ║
+╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
+║ http://localhost:3000 │ Short  │ 06:25:45 pm │ 06:35:45 pm │ 75%          │ 3 ms                  │ 17 ms             │ 200 => 112        │ Went down with availability 71% at 05:46:49 pm ║
+║                       │        │             │             │              │                       │                   │ 400 => 36         │ Recovered with availability 81% at 06:03:33 pm ║
+║                       │        │             │             │              │                       │                   │ 502 => 2          │ Went down with availability 79% at 06:33:37 pm ║
+╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
+║                       │ Long   │ 05:45:45 pm │ 06:35:45 pm │ 64%          │ 2 ms                  │ 17 ms             │ 200 => 481        │                                                ║
+║                       │        │             │             │              │                       │                   │ 400 => 36         │                                                ║
+║                       │        │             │             │              │                       │                   │ 502 => 233        │                                                ║
+╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
+║ http://localhost:3001 │ Short  │ 06:25:43 pm │ 06:35:43 pm │ 0%           │ 1 ms                  │ 4 ms              │ 502 => 120        │ Went down with availability 0% at 05:45:53 pm  ║
+╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
+║                       │ Long   │ 05:45:53 pm │ 06:34:53 pm │ 0%           │ 1 ms                  │ 22 ms             │ 502 => 588        │                                                ║
+╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
+║ http://youtube.com    │ Short  │ 06:25:44 pm │ 06:35:44 pm │ 100%         │ 647 ms                │ 5100 ms           │ 200 => 120        │                                                ║
+╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
+║                       │ Long   │ 05:46:04 pm │ 06:35:04 pm │ 100%         │ 624 ms                │ 5100 ms           │ 200 => 588        │                                                ║
+╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
+║ http://github.com     │ Short  │ 06:25:44 pm │ 06:35:40 pm │ 100%         │ 318 ms                │ 907 ms            │ 200 => 86         │                                                ║
+╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
+║                       │ Long   │ 05:46:10 pm │ 06:35:10 pm │ 100%         │ 361 ms                │ 5262 ms           │ 200 => 420        │                                                ║
+╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
+║ http://localhost:3010 │ Short  │ 06:25:41 pm │ 06:35:41 pm │ 0%           │ 1 ms                  │ 4 ms              │ 502 => 120        │ Went down with availability 0% at 05:47:21 pm  ║
+╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
+║                       │ Long   │ 05:47:21 pm │ 06:35:21 pm │ 0%           │ 8868 ms               │ 30015 ms          │ 408 => 167        │                                                ║
+║                       │        │             │             │              │                       │                   │ 500 => 6          │                                                ║
+║                       │        │             │             │              │                       │                   │ 502 => 403        │                                                ║
+╚═══════════════════════╧════════╧═════════════╧═════════════╧══════════════╧═══════════════════════╧═══════════════════╧═══════════════════╧════════════════════════════════════════════════╝
 
-### Statistics for past hour (displayed every minute)
-
-```
-   ┏━━━━━━━━━━━━━━━━━━━━━ https://datadoghq.com - LONG STATS ━━━━━━━━━━━━━━━━━━━━━━━┓
-   ┃                                                                                ┃
-   ┃   Displaying stats for https://datadoghq.com from 03:30:29 pm to 04:30:29 pm   ┃
-   ┃                         Average response time: 452 ms                          ┃
-   ┃                         Maximum response time: 673 ms                          ┃
-   ┃                              Availability: 100%                                ┃
-   ┃                            ╔════════╤═══════════╗                              ┃
-   ┃                            ║ Status │ Frequency ║                              ┃
-   ┃                            ╟────────┼───────────╢                              ┃
-   ┃                            ║ 200    │ 712       ║                              ┃
-   ┃                            ╚════════╧═══════════╝                              ┃
-   ┃                                                                                ┃
-   ┃                                                                                ┃
-   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-```
-
-### Alerting when website is down for the past 2 minutes (i.e. availability is below 80%)
-
-```
-┏━━━━━━━━━━━━━━━ ALERT DOWN ━━━━━━━━━━━━━━━━┓
-┃                                           ┃
-┃   Website http://localhost:3000 is down   ┃
-┃     Availability is 0% at 04:35:07 pm     ┃
-┃                                           ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-```
-
-### Alerting when website recovered (i.e. availability is more than 80%)
-
-```
-┏━━━━━━━━━━━━━━━ ALERT RECOVER ━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃                                                      ┃
-┃   Website http://localhost:3000 has recovered        ┃
-┃         Availability is 82% at 04:59:07 pm           ┃
-┃                                                      ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+> monitor anotherwebsite.com 4
 ```
 
 ## Code examples
@@ -247,7 +195,7 @@ Regardless of this famous quote, the implementations of the most important featu
 
 ### Periodic website fetching and statistics displaying
 
-`SchedulerService` is used to set up the jobs to be run periodically. It is based on `ScheduleModule` of `@nestjs/schedule` library but provides additional functionality such as optionally firing off the job function immediately and a callback to be run only once after a job starts
+`SchedulerService` is used to set up the jobs to be run periodically. It is based on `ScheduleModule` of `@nestjs/schedule` library but provides additional functionality such as optionally firing off the job function immediately and two types of callbacks to be run only once after or before a job starts
 
 `src/Providers/scheduler/scheduler.service.ts`
 
@@ -256,9 +204,12 @@ public async addJob({
   name,
   period,
   job,
-  callback,
-  executeImmediately
+  afterStart,
+  executeImmediately,
+  beforeStart
 }: AddJobDto) {
+  await beforeStart?.(); // execute beforeStart callback if it was provided
+
   await this.executeAndScheduleJob({
     name,
     job,
@@ -266,7 +217,7 @@ public async addJob({
     executeImmediately
   });
 
-  callback?.(); // execute callback if it was provided
+  afterStart?.(); // execute afterStart callback if it was provided
 }
 
 private async executeAndScheduleJob({
@@ -281,51 +232,54 @@ private async executeAndScheduleJob({
 }
 ```
 
-`StatsService` consumes `SchedulerService` to set up periodic fetching of a website and logging of statistics for both _short_ (every 10 seconds) and _long_ (every minute) intervals. Note that the job for displaying for _short_ stats starts only after the website has been fetched for the first time. This is done to handle the edge case of the very first request giving timeout error: if it takes a website too long to respond (i.e. longer than 10 seconds) for the first time, the statistics should not be displayed as we have no responses to analyze yet. Also, the displaying of _long_ stats is delayed since for the first 10 minutes they are going to be the same as _short_ stats
+`StatsService` consumes `SchedulerService` to set up periodic fetching of a website and logging of statistics for both _short_ (every 10 seconds) and _long_ (every minute) intervals. Note that the job for displaying for _short_ stats starts only after the website has been fetched for the first time. This is done to handle the edge case of the very first request giving timeout error: if it takes a website too long to respond (i.e. longer than 10 seconds) for the first time, the statistics should not be displayed as we have no responses to analyze yet. Also, the displaying of _long_ stats is delayed since for the first 10 minutes they are going to be the same as _short_ stats.
+
+Method below listens to the events emitted each time a new website is added (see `src/Modules/shell/shell.service.ts`)
 
 `src/Modules/stats/stats.service.ts`
 
 ```
-public async monitor({ website, interval }: MonitorWebsitePlainDto) {
-
-  ...
-
+@OnEvent(MonitorWebsiteEvent.eventName)
+public async monitor({ website, interval }: MonitorWebsiteEvent) {
   const startStatsShortJob = () =>
     this.schedulerService.addJob({
-      name: DISPLAY_STATS_SHORT_JOB_KEY,
+      name: `${website}#${DISPLAY_STATS_SHORT_JOB_KEY}`,
       period: this.appConfigService.shortInterval,
       job: async () =>
-        this.displayStats({
+        this.updateStats(
           website,
-          duration: this.appConfigService.shortDuration,
-          statsType: StatsType.Short
-        })
+          this.appConfigService.shortDuration,
+          StatsType.Short
+        ),
+      executeImmediately: true
     });
 
   const startStatsLongJob = () =>
     this.schedulerService.addJob({
-      name: DISPLAY_STATS_LONG_JOB_KEY,
+      name: `${website}#${DISPLAY_STATS_LONG_JOB_KEY}`,
       period: this.appConfigService.longInterval,
       job: async () =>
-        this.displayStats({
+        this.updateStats(
           website,
-          duration: this.appConfigService.longDuration,
-          statsType: StatsType.Long
-        }),
+          this.appConfigService.longDuration,
+          StatsType.Long
+        ),
       executeImmediately: true
     });
 
   await this.schedulerService.addJob({
-    name: FETCH_JOB_KEY,
+    name: `${website}#${FETCH_JOB_KEY}`,
     period: interval,
     job: () => this.fetchWebsite(website),
-    callback: async () => {
+    afterStart: async () => {
       startStatsShortJob();
       setTimeout(
         () => startStatsLongJob(),
         this.appConfigService.shortDuration.asMilliseconds()
       );
     },
+    beforeStart: async () =>
+      this.statsRepository.initializeEmptyStats(website), // create new stats instance before fetching every website
     executeImmediately: true
   });
 }
@@ -360,35 +314,36 @@ public async registerResponse(url: string): Promise<void> {
 }
 ```
 
-`AlertService` listens to this event and consumes `ResponseService` to determine whether website is down or has recovered and displays according message in console via `LoggerService`
+`AlertService` listens to this event and consumes `ResponseService` to determine whether website is down or has recovered and adds according `AlertModel` entity to the `StatsRepository`. Therefore, all alerts are stored per each website in a unified storage inside `StatsRepository` 
 
 `src/Modules/alert/alert.service.ts`
 
 ```
-@OnEvent(RegisterResponseEvent.eventName)
+@OnEvent(RegisterResponseEvent.eventName, { async: true, nextTick: true })
 public onRegisterResponse({ website }: RegisterResponseEvent): void {
-  const start = moment().subtract(this.configService.downCheckDuration);
+  const start = moment().subtract(this.appConfigService.downCheckDuration);
   const now = moment();
   const interval = new Interval({ start, end: now });
 
-  const availability = this.responseService.getAvailability(interval);
-  const targetAvailability = this.configService.alertAvailability;
-  const currentlyDown = this.alertRepository.getIsDown();
+  const availability = this.responseService.getAvailability(
+    website,
+    interval
+  );
+  const targetAvailability = this.appConfigService.alertAvailability;
+  const currentlyDown = this.alertRepository.getIsDown(website);
 
-  this.alertRepository.setIsDown(availability < targetAvailability);
+  this.alertRepository.setIsDown(website, availability < targetAvailability);
 
   if (availability < targetAvailability && !currentlyDown) {
-    this.loggerService.alert({
-      availability,
+    this.statsRepository.addAlertForWebsite(website, {
       time: now,
-      website,
+      availability,
       type: AlertType.Down
     });
   } else if (availability >= targetAvailability && currentlyDown) {
-    this.loggerService.alert({
-      availability,
+    this.statsRepository.addAlertForWebsite(website, {
       time: now,
-      website,
+      availability,
       type: AlertType.Recover
     });
   }
@@ -415,13 +370,23 @@ Stats are calculated "on the go", analyzing the in-memory responses over certain
 `src/Modules/response/response.repository.ts`
 
 ```
-public getResponsesForInterval(interval: Interval): ResponseModel[] {
+public getResponsesForWebsitePerInterval(
+  website: string,
+  interval: Interval
+): ResponseModel[] {
+  return this.getResponsesForInterval(interval).filter(
+    response => response.website === website
+  );
+}
+
+private getResponsesForInterval(interval: Interval): ResponseModel[] {
   const startIndex = this.getClosestResponseIndexToTime(interval.start);
   const endIndex = this.getClosestResponseIndexToTime(interval.end);
 
   return this.responses.slice(startIndex, endIndex);
 }
 
+// since responses are always sorted by registeredAt, use binary search for quicker find operations
 private getClosestResponseIndexToTime(time: Moment): number {
   let [start, end] = [0, this.responses.length];
 
@@ -438,61 +403,6 @@ private getClosestResponseIndexToTime(time: Moment): number {
 
   return start;
 }
-```
-
-### Terminal window popup
-
-The application tries to open a new terminal instance and run Node.js script inside it whenever user adds a new website to be monitored. This operation is very OS-specific and terminal application-specific. Therefore, it is impossible to add support for all kinds of terminals on all operating systems (at least not with Node.js). The code below tries to create a synchronous child process which blocks the Node.js event loop so that terminal keeps running in the background (this doesn't mean that the entire program's execution stops)
-
-`src/Utils/open-terminal.util.ts`
-
-```
-export const openTerminal = (command: string) => {
-  switch (process.platform) {
-    // Linux distributions
-    case 'linux':
-      try {
-        execSync(`gnome-terminal -- ${command}`, { stdio: 'ignore' });
-      } catch (e) {
-        console.log(
-          'Sorry, your terminal application is currently not supported'
-        );
-        process.exit();
-      }
-      break;
-    // macOS
-    case 'darwin':
-      try {
-        execSync(
-          `osascript -e 'tell app "Terminal" to do script "cd ${process.cwd()} && ${command}"'`,
-          {
-            stdio: 'ignore'
-          }
-        );
-      } catch (e) {
-        console.log(
-          'Sorry, your terminal application is currently not supported'
-        );
-        process.exit();
-      }
-      break;
-    // Microsoft Windows
-    case 'win32':
-      try {
-        execSync(`start cmd.exe /K ${command}`, { stdio: 'ignore' });
-      } catch (e) {
-        console.log(
-          'Sorry, your terminal application is currently not supported'
-        );
-        process.exit();
-      }
-      break;
-    // Other operating systems are not supported
-    default:
-      console.log('Sorry, your operating system is currently not supported :(');
-      process.exit();
-  }
-};
 ```
 
 ## Testing
@@ -514,6 +424,11 @@ Unit tests are implemented to test alerting mechanism.
 
 ## Further thoughts
 
-One of the potential improvements would be to add a fallback when user's terminal application is not supported. It is possible to write the stats for each website into a separate text file when application cannot open new terminal popup and let user tail them in console or end monitoring a given website by killing a child process dedicated to it
+The application is refreshing data inside terminal window every time stats for any of the websites should update. Even though user input is being preserved between inputs, the outputs for invalid inputs will be cleared as soon as window is refreshed. This rather happens because of the nature of Node.js console.
 
-Additionally, it might also be useful to have an option to monitor all the websites in a single terminal window. However, to avoid massive output with all the websites mixed up together, it is possible to allocate a "box" for each website's stats and alert messages. So, popup application will aggregate all the websites that user adds and display them one by one **rewriting** the stats for each of them every 10 seconds and every minute. The trickiest part of this approach is to keep track of the "position" of each website inside a terminal window in order to be able to rewrite stats periodically. Generally speaking, CLI application is not made for such usage, therefore, it is better to create a web application where it is way easier to manipulate the DOM.
+Additionally, as mentioned in [interface](#interface) section, it is not recommended adding too many websites per single program instance (i.e. more than your terminal viewport can handle). Doing so may result into disturbed display of the statistics that is left outside your terminal viewport. Console is being cleared every time stats need to update for any of the websites and new, updated stats are being drawn, therefore, it is very inconvenient to scroll to the stats that are outside the viewport. Nevertheless, all of these stats are being preserved and user can easily see them by scrolling after shutting down the application.
+
+Because of the issues described above, perhaps, web application would be a better solution for such problem. It is way easier to selectively update information on the web page using a library like React and instead of clearing the whole page every time stats need to update, it is better to send server-sent events (SSE) and make React client-side listen to them and update stats accordingly.
+
+One of the possible design improvements would be to separate the storage of alerts and statistics and "join" them with some unique common key (e.g. website). In SQL database context, for example, we would "left join" alerts inside `StatsRepository` in order to obtain full stats per website, instead of keeping alerts and stats together. 
+
