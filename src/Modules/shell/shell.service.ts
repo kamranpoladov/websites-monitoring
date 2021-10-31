@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 as EventEmitter } from '@nestjs/event-emitter';
 import { plainToClass } from 'class-transformer';
+import shell from 'shelljs';
 import Vorpal from 'vorpal';
 
 import { LoggerService, PrettyService, ValidationService } from 'Providers';
@@ -30,7 +31,9 @@ export class ShellService {
           website,
           interval
         });
-        const errors = await this.validationService.validate(monitorWebsiteDto);
+        const errors = await this.validationService.validateObject(
+          monitorWebsiteDto
+        );
 
         // make sure website isn't already being monitored
         const alreadyExists = this.shellRepository.hasWebsite(
@@ -51,15 +54,22 @@ export class ShellService {
             ? `Website ${website} is already monitored`
             : '';
           const prettyMessage = this.prettyService
-            .withTitle('Validation errors')
-            .withMessages(alreadyExistsMessage, ...errors)
+            .withTitle(`${website} - Validation errors`)
+            .withMessages(...errors, alreadyExistsMessage)
             .buildBox();
-          this.loggerService.info(prettyMessage);
+          this.loggerService.error(prettyMessage);
         }
       });
   }
 
   public show() {
     this.shell.show();
+  }
+
+  public traceErrors() {
+    this.loggerService.info(
+      'If you input wrong data, validation errors will appear here...'
+    );
+    shell.exec('tail -f errors.log');
   }
 }

@@ -32,7 +32,7 @@ export class SchedulerService {
     job,
     period,
     executeImmediately
-  }: Omit<AddJobDto, 'callback'>): Promise<void> {
+  }: Omit<AddJobDto, 'afterStart' | 'beforeStart'>): Promise<void> {
     if (executeImmediately) await job();
     const interval = setInterval(job, period.asMilliseconds());
     this.schedulerRegistry.addInterval(name, interval);

@@ -19,16 +19,22 @@ export class LoggerService {
         format.simple(),
         format.printf(info => info.message)
       ),
-      transports: [new transports.Console()]
+      transports: [
+        new transports.Console({ level: 'info' }),
+        new transports.File({
+          filename: `errors.log`,
+          level: 'error'
+        })
+      ]
     });
   }
 
   public info(message: string) {
-    this.logger.info(message);
+    this.logger.log('info', message);
   }
 
   public error(message: string) {
-    this.logger.error(message);
+    this.logger.log('error', message);
   }
 
   public stats(stats: StatsListModel) {
@@ -36,6 +42,9 @@ export class LoggerService {
       header: {
         alignment: 'center',
         content: 'STATS FOR ALL WEBSITES'
+      },
+      columnDefault: {
+        alignment: 'center'
       }
     };
     const data = [

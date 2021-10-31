@@ -12,4 +12,11 @@ export class ShellController {
   public shell() {
     return this.shellService.bootstrap();
   }
+
+  @Command({
+    command: 'errors'
+  })
+  public errors() {
+    this.shellService.traceErrors();
+  }
 }

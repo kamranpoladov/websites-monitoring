@@ -1,1 +1,1 @@
-export const TIME_FORMAT = 'hh:mm:ss a';
+export const TIME_FORMAT = 'HH:mm:ss';
