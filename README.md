@@ -100,7 +100,7 @@ $ npm start
 
 ### Keeping track of validation errors
 
-In order to keep track of input validation errors, you can also run the following command in a separate window:
+In order to keep track of input validation errors, you can also run the following command in a **separate window**:
 
 ```
 $ npm run start:errors
