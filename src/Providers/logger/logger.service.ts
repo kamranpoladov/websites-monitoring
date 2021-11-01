@@ -102,21 +102,21 @@ export class LoggerService {
     dataPoint.push(`${stats.averageResponseTime.asMilliseconds()} ms`);
     dataPoint.push(`${stats.maxResponseTime.asMilliseconds()} ms`);
 
-    const httpStatsCountMessage = this.constructHttpStatsCountMessage(
+    const httpStatsCountMessage = LoggerService.constructHttpStatsCountMessage(
       stats.httpStatusCount
     );
 
     dataPoint.push(httpStatsCountMessage);
 
     const alertMessages = alerts.map(alert =>
-      this.constructAlertMessage(alert)
+      LoggerService.constructAlertMessage(alert)
     );
     dataPoint.push(alertMessages.join('\n'));
 
     return dataPoint;
   }
 
-  private constructHttpStatsCountMessage(
+  private static constructHttpStatsCountMessage(
     httpStatusCount: Map<HttpStatus, number>
   ): string {
     return Array.from(httpStatusCount.entries())
@@ -125,7 +125,7 @@ export class LoggerService {
       .join('\n');
   }
 
-  private constructAlertMessage(alert: AlertModel): string {
+  private static constructAlertMessage(alert: AlertModel): string {
     return alert.type === AlertType.Down
       ? `Went down with availability ${
           alert.availability
