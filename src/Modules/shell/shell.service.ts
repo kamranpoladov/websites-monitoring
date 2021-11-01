@@ -1,12 +1,13 @@
-import * as fs from 'fs';
+import { open } from 'fs/promises';
+import { existsSync } from 'fs';
 
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 as EventEmitter } from '@nestjs/event-emitter';
 import { plainToClass } from 'class-transformer';
-import { exec } from 'shelljs';
 import Vorpal from 'vorpal';
 
 import { LoggerService, PrettyService, ValidationService } from 'Providers';
+import { tailFile } from 'Utils';
 
 import { ERRORS_FILE_NAME } from '../../Constants';
 
@@ -70,20 +71,17 @@ export class ShellService {
     this.shell.show();
   }
 
-  public traceErrors() {
+  public async traceErrors() {
     try {
-      if (!fs.existsSync(ERRORS_FILE_NAME)) {
-        this.loggerService.info(
-          `Could not find ${ERRORS_FILE_NAME} file. Creating a new one...\n`
-        );
-        fs.closeSync(fs.openSync(ERRORS_FILE_NAME, 'w'));
+      if (!existsSync(ERRORS_FILE_NAME)) {
+        await (await open(ERRORS_FILE_NAME, 'w')).close(); // create a new file and close the file handle
       }
 
       this.loggerService.info(
         'If you input wrong data, validation errors will appear here...'
       );
 
-      exec(`tail -f ${ERRORS_FILE_NAME}`); // UNIX command to continuously output file contents
+      await tailFile(ERRORS_FILE_NAME);
     } catch (e) {
       this.loggerService.info('Something went wrong...');
       process.exit();

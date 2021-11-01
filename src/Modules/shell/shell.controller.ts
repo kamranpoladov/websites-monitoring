@@ -17,6 +17,6 @@ export class ShellController {
     command: 'errors'
   })
   public errors() {
-    this.shellService.traceErrors();
+    return this.shellService.traceErrors();
   }
 }
