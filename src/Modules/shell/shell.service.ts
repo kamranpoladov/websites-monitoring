@@ -30,7 +30,10 @@ export class ShellService {
     this.shell.delimiter('>> ').show();
 
     this.shell
-      .command('monitor <website> <interval>')
+      .command(
+        'monitor <website> <interval>',
+        'Monitors a given website over specified interval'
+      )
       .action(async ({ website, interval }) => {
         const monitorWebsiteDto = plainToClass(MonitorWebsiteDto, {
           website,
