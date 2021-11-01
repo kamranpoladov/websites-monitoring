@@ -50,13 +50,13 @@ export class LoggerService {
     const data = [
       [
         'Website',
-        'Period',
+        'Type',
         'From',
         'To',
         'Availability',
-        'Average response time',
+        'Avg response time',
         'Max response time',
-        'Http status count',
+        'Http status',
         'Alerts'
       ]
     ];

@@ -22,7 +22,7 @@ export class ShellService {
   ) {}
 
   public bootstrap() {
-    this.shell.delimiter('> ').show();
+    this.shell.delimiter('>> ').show();
 
     this.shell
       .command('monitor <website> <interval>')
