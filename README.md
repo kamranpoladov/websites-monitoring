@@ -1,27 +1,25 @@
-# Websites Monitoring CLI App
+# Websites Monitoring CLI Application
 
 An interactive shell that allows users to monitor websites' performance, gathering statistics
 about average response time, maximum responses time, availability and HTTP status codes count.
 
 ## Table of contents
 
-- [Websites Monitoring CLI App](#websites-monitoring-cli-app)
-  - [Table of contents](#table-of-contents)
-  - [Features](#features)
-  - [Tech stack](#tech-stack)
-  - [Installation](#installation)
-    - [Prerequisites](#prerequisites)
-    - [Setup](#setup)
-  - [Usage](#usage)
-    - [Starting the application](#starting-the-application)
-    - [Examples](#examples)
-  - [Interface](#interface)
-  - [Code examples](#code-examples)
-    - [Periodic website fetching and statistics displaying](#periodic-website-fetching-and-statistics-displaying)
-    - [Alerting logic](#alerting-logic)
-    - [Optimization](#optimization)
-  - [Testing](#testing)
-  - [Further thoughts](#further-thoughts)
+- [Features](#features)
+- [Tech stack](#tech-stack)
+- [Installation](#installation)
+  - [Prerequisites](#prerequisites)
+  - [Setup](#setup)
+- [Usage](#usage)
+  - [Starting the application](#starting-the-application)
+  - [Examples](#examples)
+- [Interface](#interface)
+- [Code examples](#code-examples)
+  - [Periodic website fetching and statistics displaying](#periodic-website-fetching-and-statistics-displaying)
+  - [Alerting logic](#alerting-logic)
+  - [Optimization](#optimization)
+- [Testing](#testing)
+- [Further thoughts](#further-thoughts)
 
 ## Features
 
@@ -74,7 +72,7 @@ $ cp .env.dist .env
 $ copy .env.dist .env
 ```
 
-Feel free to adjust the configurations inside `.env` to change intervals, durations, etc.
+Feel free to adjust the configurations inside `.env` following the guidelines to change intervals, durations, etc.
 
 3. Install the dependencies with **npm**:
 
@@ -121,13 +119,13 @@ $ npm run start:errors:dev
 
 ### After starting the application
 
-An interactive shell will appear in your command line (wait to see `>` symbol)
+An interactive shell will appear in your command line (wait to see `>>` symbol)
 
 Start using this shell to monitor different websites
 
 #### Available commands
 
-- `monitor <website> <interval>` - adds a new website (has to be a valid, unique in the scope of application URL, adding protocol is optional but recommended) to be monitored over a specified interval (number in seconds, minimum is 3)
+- `monitor <website> <interval>` - adds a new website (has to be a valid, unique in the scope of application URL, adding protocol is optional but required for HTTPS connections) to be monitored over a specified interval (number in seconds, minimum is 3)
 - `help` - lists all available commands
 - `exit` - exits the application (this will not close any of the windows displaying stats for the websites you have already added)
 
@@ -135,9 +133,9 @@ Start using this shell to monitor different websites
 
 ```
 $ npm start
-> monitor datadoghq.com 5
+>> monitor datadoghq.com 5
 
-> monitor invalid_website 6
+>> monitor invalid_website 6
 
    ┏ Validation failed ━┓
    ┃                    ┃
@@ -145,7 +143,7 @@ $ npm start
    ┃                    ┃
    ┗━━━━━━━━━━━━━━━━━━━━┛
 
-> monitor localhost:3000 2
+>> monitor localhost:3000 2
 
    ┏━━━━━━━━━━━━━━━━━━━━━━━━━ Validation failed ━━━━━━━━━━━━━━━━━━━━━━━━━┓
    ┃                                                                     ┃
@@ -156,50 +154,54 @@ $ npm start
 
 ## Interface
 
-Interface represents a table with all the websites added during program uptime. Stats are updated automatically as program is running. You can add more websites to be monitored using the commands above while viewing this table. However, please note that the height of this table is limited to the size of your terminal window. Therefore, it is not recommended adding too many websites in a single instance of program (more details on "why" in [further thoughts](#further-thoughts))
+Interface represents a table with all the websites added during program uptime. "Type" column represents whether stats are for "Short" (10 minutes) or "Long" (1 hour) intervals. Stats are updated automatically as program is running. You can add more websites to be monitored using the commands above while viewing this table. However, please note that the height of this table is limited to the size of your terminal window. Therefore, it is not recommended adding too many websites in a single instance of program (more details on "why" in [further thoughts](#further-thoughts))
 
 ```                                             
-╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
-║                                                                                   STATS FOR ALL WEBSITES                                                                                   ║
-╟───────────────────────┬────────┬─────────────┬─────────────┬──────────────┬───────────────────────┬───────────────────┬───────────────────┬────────────────────────────────────────────────╢
-║ Website               │ Period │ From        │ To          │ Availability │ Average response time │ Max response time │ Http status count │ Alerts                                         ║
-╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
-║ http://google.com     │ Short  │ 06:25:48 pm │ 06:35:47 pm │ 100%         │ 205 ms                │ 635 ms            │ 200 => 120        │                                                ║
-╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
-║                       │ Long   │ 05:45:17 pm │ 06:35:17 pm │ 100%         │ 207 ms                │ 1227 ms           │ 200 => 600        │                                                ║
-╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
-║ http://facebook.com   │ Short  │ 06:25:44 pm │ 06:35:41 pm │ 100%         │ 687 ms                │ 1641 ms           │ 200 => 150        │                                                ║
-╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
-║                       │ Long   │ 05:45:31 pm │ 06:35:31 pm │ 100%         │ 695 ms                │ 2763 ms           │ 200 => 750        │                                                ║
-╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
-║ http://localhost:3000 │ Short  │ 06:25:45 pm │ 06:35:45 pm │ 75%          │ 3 ms                  │ 17 ms             │ 200 => 112        │ Went down with availability 71% at 05:46:49 pm ║
-║                       │        │             │             │              │                       │                   │ 400 => 36         │ Recovered with availability 81% at 06:03:33 pm ║
-║                       │        │             │             │              │                       │                   │ 502 => 2          │ Went down with availability 79% at 06:33:37 pm ║
-╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
-║                       │ Long   │ 05:45:45 pm │ 06:35:45 pm │ 64%          │ 2 ms                  │ 17 ms             │ 200 => 481        │                                                ║
-║                       │        │             │             │              │                       │                   │ 400 => 36         │                                                ║
-║                       │        │             │             │              │                       │                   │ 502 => 233        │                                                ║
-╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
-║ http://localhost:3001 │ Short  │ 06:25:43 pm │ 06:35:43 pm │ 0%           │ 1 ms                  │ 4 ms              │ 502 => 120        │ Went down with availability 0% at 05:45:53 pm  ║
-╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
-║                       │ Long   │ 05:45:53 pm │ 06:34:53 pm │ 0%           │ 1 ms                  │ 22 ms             │ 502 => 588        │                                                ║
-╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
-║ http://youtube.com    │ Short  │ 06:25:44 pm │ 06:35:44 pm │ 100%         │ 647 ms                │ 5100 ms           │ 200 => 120        │                                                ║
-╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
-║                       │ Long   │ 05:46:04 pm │ 06:35:04 pm │ 100%         │ 624 ms                │ 5100 ms           │ 200 => 588        │                                                ║
-╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
-║ http://github.com     │ Short  │ 06:25:44 pm │ 06:35:40 pm │ 100%         │ 318 ms                │ 907 ms            │ 200 => 86         │                                                ║
-╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
-║                       │ Long   │ 05:46:10 pm │ 06:35:10 pm │ 100%         │ 361 ms                │ 5262 ms           │ 200 => 420        │                                                ║
-╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
-║ http://localhost:3010 │ Short  │ 06:25:41 pm │ 06:35:41 pm │ 0%           │ 1 ms                  │ 4 ms              │ 502 => 120        │ Went down with availability 0% at 05:47:21 pm  ║
-╟───────────────────────┼────────┼─────────────┼─────────────┼──────────────┼───────────────────────┼───────────────────┼───────────────────┼────────────────────────────────────────────────╢
-║                       │ Long   │ 05:47:21 pm │ 06:35:21 pm │ 0%           │ 8868 ms               │ 30015 ms          │ 408 => 167        │                                                ║
-║                       │        │             │             │              │                       │                   │ 500 => 6          │                                                ║
-║                       │        │             │             │              │                       │                   │ 502 => 403        │                                                ║
-╚═══════════════════════╧════════╧═════════════╧═════════════╧══════════════╧═══════════════════════╧═══════════════════╧═══════════════════╧════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                                                        STATS FOR ALL WEBSITES                                                                         ║
+╟───────────────────────┬──────┬──────────┬──────────┬──────────────┬───────────────────┬───────────────────┬─────────────┬─────────────────────────────────────────────╢
+║        Website        │ Type │   From   │    To    │ Availability │ Avg response time │ Max response time │ Http status │                   Alerts                    ║
+╟───────────────────────┼──────┼──────────┼──────────┼──────────────┼───────────────────┼───────────────────┼─────────────┼─────────────────────────────────────────────╢
+║ https://datadoghq.com │  S   │ 00:41:39 │ 00:51:38 │     100%     │      233 ms       │      515 ms       │ 200 => 200  │                                             ║
+╟───────────────────────┼──────┼──────────┼──────────┼──────────────┼───────────────────┼───────────────────┼─────────────┼─────────────────────────────────────────────╢
+║                       │  L   │ 00:34:47 │ 00:50:47 │     100%     │      237 ms       │      998 ms       │ 200 => 320  │                                             ║
+╟───────────────────────┼──────┼──────────┼──────────┼──────────────┼───────────────────┼───────────────────┼─────────────┼─────────────────────────────────────────────╢
+║  https://google.com   │  S   │ 00:41:44 │ 00:51:44 │     100%     │      194 ms       │      549 ms       │ 200 => 120  │                                             ║
+╟───────────────────────┼──────┼──────────┼──────────┼──────────────┼───────────────────┼───────────────────┼─────────────┼─────────────────────────────────────────────╢
+║                       │  L   │ 00:34:54 │ 00:50:54 │     100%     │      193 ms       │      549 ms       │ 200 => 192  │                                             ║
+╟───────────────────────┼──────┼──────────┼──────────┼──────────────┼───────────────────┼───────────────────┼─────────────┼─────────────────────────────────────────────╢
+║ https://facebook.com  │  S   │ 00:41:44 │ 00:51:41 │     100%     │      343 ms       │      510 ms       │ 200 => 100  │                                             ║
+╟───────────────────────┼──────┼──────────┼──────────┼──────────────┼───────────────────┼───────────────────┼─────────────┼─────────────────────────────────────────────╢
+║                       │  L   │ 00:35:01 │ 00:51:01 │     100%     │      345 ms       │      727 ms       │ 200 => 160  │                                             ║
+╟───────────────────────┼──────┼──────────┼──────────┼──────────────┼───────────────────┼───────────────────┼─────────────┼─────────────────────────────────────────────╢
+║  https://youtube.com  │  S   │ 00:41:45 │ 00:51:42 │     100%     │      476 ms       │      1132 ms      │ 200 => 150  │                                             ║
+╟───────────────────────┼──────┼──────────┼──────────┼──────────────┼───────────────────┼───────────────────┼─────────────┼─────────────────────────────────────────────╢
+║                       │  L   │ 00:35:12 │ 00:51:12 │     100%     │      470 ms       │      1372 ms      │ 200 => 240  │                                             ║
+╟───────────────────────┼──────┼──────────┼──────────┼──────────────┼───────────────────┼───────────────────┼─────────────┼─────────────────────────────────────────────╢
+║ http://localhost:3000 │  S   │ 00:41:42 │ 00:51:42 │     57%      │       2 ms        │       15 ms       │  200 => 55  │ Went down with availability 0% at 00:35:22  ║
+║                       │      │          │          │              │                   │                   │  201 => 14  │ Recovered with availability 83% at 00:43:27 ║
+║                       │      │          │          │              │                   │                   │  404 => 14  │ Went down with availability 75% at 00:45:52 ║
+║                       │      │          │          │              │                   │                   │  501 => 15  │                                             ║
+║                       │      │          │          │              │                   │                   │  502 => 22  │                                             ║
+╟───────────────────────┼──────┼──────────┼──────────┼──────────────┼───────────────────┼───────────────────┼─────────────┼─────────────────────────────────────────────╢
+║                       │  L   │ 00:35:22 │ 00:51:22 │     35%      │       2 ms        │       15 ms       │  200 => 53  │                                             ║
+║                       │      │          │          │              │                   │                   │  201 => 14  │                                             ║
+║                       │      │          │          │              │                   │                   │  404 => 13  │                                             ║
+║                       │      │          │          │              │                   │                   │  501 => 14  │                                             ║
+║                       │      │          │          │              │                   │                   │  502 => 98  │                                             ║
+╟───────────────────────┼──────┼──────────┼──────────┼──────────────┼───────────────────┼───────────────────┼─────────────┼─────────────────────────────────────────────╢
+║ http://localhost:3001 │  S   │ 00:41:43 │ 00:51:41 │     57%      │       2 ms        │       15 ms       │  200 => 85  │ Went down with availability 0% at 00:35:31  ║
+║                       │      │          │          │              │                   │                   │  502 => 65  │ Recovered with availability 83% at 00:47:39 ║
+╟───────────────────────┼──────┼──────────┼──────────┼──────────────┼───────────────────┼───────────────────┼─────────────┼─────────────────────────────────────────────╢
+║                       │  L   │ 00:35:31 │ 00:51:31 │     34%      │       2 ms        │       17 ms       │  200 => 82  │                                             ║
+║                       │      │          │          │              │                   │                   │ 502 => 158  │                                             ║
+╟───────────────────────┼──────┼──────────┼──────────┼──────────────┼───────────────────┼───────────────────┼─────────────┼─────────────────────────────────────────────╢
+║   https://apple.com   │  S   │ 00:41:37 │ 00:51:37 │     100%     │      171 ms       │      205 ms       │  200 => 60  │                                             ║
+╟───────────────────────┼──────┼──────────┼──────────┼──────────────┼───────────────────┼───────────────────┼─────────────┼─────────────────────────────────────────────╢
+║                       │  L   │ 00:35:57 │ 00:50:57 │     100%     │      169 ms       │      258 ms       │  200 => 90  │                                             ║
+╚═══════════════════════╧══════╧══════════╧══════════╧══════════════╧═══════════════════╧═══════════════════╧═════════════╧═════════════════════════════════════════════╝
 
-> monitor anotherwebsite.com 4
+>> monitor anotherwebsite.com 4
 ```
 
 ## Code examples
@@ -247,7 +249,7 @@ private async executeAndScheduleJob({
 }
 ```
 
-`StatsService` consumes `SchedulerService` to set up periodic fetching of a website and logging of statistics for both _short_ (every 10 seconds) and _long_ (every minute) intervals. Note that the job for displaying for _short_ stats starts only after the website has been fetched for the first time. This is done to handle the edge case of the very first request giving timeout error: if it takes a website too long to respond (i.e. longer than 10 seconds) for the first time, the statistics should not be displayed as we have no responses to analyze yet. Also, the displaying of _long_ stats is delayed since for the first 10 minutes they are going to be the same as _short_ stats.
+`StatsService` consumes `SchedulerService` to set up periodic fetching of a website and logging of statistics for both _short_ (every 10 seconds) and _long_ (every minute) intervals. Note that the job for displaying the _short_ stats starts only after the website has been fetched for the first time. This is done to handle the edge case of the very first request giving timeout error: if it takes a website too long to respond (i.e. longer than 10 seconds) for the first time, the statistics should not be displayed as we have no responses to analyze yet. Also, the displaying of _long_ stats is delayed since for the first 10 minutes they are going to be the same as _short_ stats.
 
 Method below listens to the events emitted each time a new website is added (see `src/Modules/shell/shell.service.ts`)
 
@@ -320,7 +322,7 @@ public async registerResponse(url: string): Promise<void> {
   this.responseRepository.addResponse(response);
 
   // notify AlertService about new registered response
-  this.eventEmitter.emit(
+  await this.eventEmitter.emitAsync(
     RegisterResponseEvent.eventName,
     new RegisterResponseEvent(url)
   );
