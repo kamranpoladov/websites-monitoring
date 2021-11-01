@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { TableUserConfig, table } from 'table';
-import { Logger, createLogger, format, transports } from 'winston';
+import { Logger, createLogger, format } from 'winston';
 
 import { TIME_FORMAT } from 'Constants';
 import { AlertType } from 'Modules/alert/constants';
@@ -8,6 +8,8 @@ import { AlertType } from 'Modules/alert/constants';
 import { AlertModel } from '../../Modules/alert/models';
 import { StatsType } from '../../Modules/stats/constants';
 import { StatsListModel, StatsModel } from '../../Modules/stats/models';
+
+import { transports } from './constants';
 
 @Injectable()
 export class LoggerService {
@@ -19,13 +21,7 @@ export class LoggerService {
         format.simple(),
         format.printf(info => info.message)
       ),
-      transports: [
-        new transports.Console({ level: 'info' }),
-        new transports.File({
-          filename: `errors.log`,
-          level: 'error'
-        })
-      ]
+      transports: [transports.console, transports.file]
     });
   }
 
@@ -34,7 +30,13 @@ export class LoggerService {
   }
 
   public error(message: string) {
+    transports.console.silent = true;
     this.logger.log('error', message);
+    transports.console.silent = false;
+  }
+
+  public clear() {
+    this.logger.clear();
   }
 
   public stats(stats: StatsListModel) {
