@@ -4,10 +4,12 @@ import { BootstrapConsole } from 'nestjs-console';
 
 import { AppModule } from 'Modules';
 
+import { ERRORS_FILE_NAME } from './Constants';
+
 // delete old error logs on exit
 process.on('exit', () => {
-  if (fs.existsSync('errors.log')) {
-    fs.unlinkSync('errors.log');
+  if (fs.existsSync(ERRORS_FILE_NAME)) {
+    fs.unlinkSync(ERRORS_FILE_NAME);
   }
 });
 
